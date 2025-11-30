@@ -101,7 +101,7 @@ function loadTrial(index){
   responseButtons.forEach(b => b.classList.remove("active"));
   confidencePanel.classList.add("hidden");
   confSlider.value = 50;
-  confLabel.textContent = 50;
+  confLabel.textContent = 1;
 
   const t = trials[index];
   stimImg.src = t.img.url;

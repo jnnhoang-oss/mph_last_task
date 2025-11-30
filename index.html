@@ -23,7 +23,7 @@
         As you are aware now, we will be having a memory test for all the images you observed yesterday.
         For each image choose: <strong>definitely new</strong>, <strong>maybe new</strong>, 
         <strong>maybe old</strong>, <strong>definitely old</strong>.
-        Afterward, rate your confidence (0–100).  
+        Afterward, rate your confidence (1-5).  
         Keyboard: <kbd>1</kbd>-<kbd>4</kbd> for responses, <kbd>Enter</kbd> to confirm confidence.
       </p>
     </header>
@@ -45,7 +45,7 @@
 
       <div id="confidencePanel" class="card hidden">
         <label for="confidence">Confidence: <span id="confLabel">50</span>/100</label>
-        <input id="confidence" type="range" min="0" max="100" value="50" />
+        <input id="confidence" type="range" min="1" max="5" value="50" />
         <div class="confControls">
           <button id="confirmBtn" class="primary">Confirm & Next (Enter)</button>
         </div>

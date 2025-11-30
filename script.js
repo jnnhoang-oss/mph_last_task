@@ -17,12 +17,14 @@ const oldImages = [
 
 const newimagesFolder = "newpic/";
 const newImages = [
- "alligator.jpg", "angelfish.jpg","ant.jpg","armadillo.jpg","assassinbug.jpg",
+  "alligator.jpg", "angelfish.jpg","ant.jpg","armadillo.jpg","assassinbug.jpg",
   "baboon.jpg","badger.jpg","baldeagle.jpg","bat.jpg","beaver.jpg","bluejay.jpg","boar.jpg",
-"bull.jpg","butterfly.jpg","cardinal.jpg","caribou.jpg","cat.jpg","caterpillarpeacockmoth.jpg",
-  "cedarwaxwing.jpg","chameleon.jpg","cheetah.jpg","chimpanzee.jpg","clownfish.jpg","cobra.jpg","cockroach.jpg","cougar.jpg","cow.jpg","crab.jpg","crow.jpg","dolphin.jpg"
-,"dragonfly.jpg","dramaderry.jpg","duck.jpg","eagle.jpg","fennec.jpg","flamingo.jpg","gecko.jpg","gorilla.jpg"
-,"hummingbird.jpg","mahimahi.jpg","mink.jpg","mole.jpg","quail.jpg","racoon.jpg","rhino.jpg","seal.jpg","snapper.jpg","zebra.jpg"
+  "bull.jpg","butterfly.jpg","cardinal.jpg","caribou.jpg","cat.jpg","caterpillarpeacockmoth.jpg",
+  "cedarwaxwing.jpg","chameleon.jpg","cheetah.jpg","chimpanzee.jpg","clownfish.jpg","cobra.jpg",
+  "cockroach.jpg","cougar.jpg","cow.jpg","crab.jpg","crow.jpg","dolphin.jpg",
+  "dragonfly.jpg","dramaderry.jpg","duck.jpg","eagle.jpg","fennec.jpg","flamingo.jpg","gecko.jpg",
+  "gorilla.jpg","hummingbird.jpg","mahimahi.jpg","mink.jpg","mole.jpg","quail.jpg","racoon.jpg",
+  "rhino.jpg","seal.jpg","snapper.jpg","zebra.jpg"
 ];
 
 const totalTrials = oldImages.length + newImages.length;
@@ -56,7 +58,7 @@ let results = [];
 // START BUTTON ------------------------------------
 startBtn.addEventListener("click", () => {
   const val = subjectIdInput.value.trim();
-  if(val === ""){
+  if (val === "") {
     alert("Please enter a valid Subject ID.");
     return;
   }
@@ -70,13 +72,32 @@ startBtn.addEventListener("click", () => {
 });
 
 // TRIAL SETUP -------------------------------------
-function initTrials(){
+function initTrials() {
   trials = [];
-  oldImages.forEach(i => trials.push({ img: i, trueLabel: "old" }));
-  newImages.forEach(i => trials.push({ img: i, trueLabel: "new" }));
 
-  // Shuffle
-  for(let i = trials.length - 1; i > 0; i--){
+  // construct full image paths properly
+  oldImages.forEach(imgName => {
+    trials.push({
+      img: {
+        id: imgName,
+        url: oldimageFolder + imgName
+      },
+      trueLabel: "old"
+    });
+  });
+
+  newImages.forEach(imgName => {
+    trials.push({
+      img: {
+        id: imgName,
+        url: newimagesFolder + imgName
+      },
+      trueLabel: "new"
+    });
+  });
+
+  // shuffle trials
+  for (let i = trials.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [trials[i], trials[j]] = [trials[j], trials[i]];
   }
@@ -87,12 +108,12 @@ function initTrials(){
   loadTrial(currentIndex);
 }
 
-function updateProgress(){
-  progressText.textContent = `${currentIndex + (currentIndex < trials.length ? 1 : 0)} / ${totalTrials}`;
+function updateProgress() {
+  progressText.textContent = `${Math.min(currentIndex + 1, totalTrials)} / ${totalTrials}`;
 }
 
-function loadTrial(index){
-  if(index >= trials.length){
+function loadTrial(index) {
+  if (index >= trials.length) {
     finishExp();
     return;
   }
@@ -104,7 +125,7 @@ function loadTrial(index){
   confLabel.textContent = 50;
 
   const t = trials[index];
-  stimImg.src = t.img.url;
+  stimImg.src = t.img.url;     // FIXED — images load correctly
   t.startTime = performance.now();
 
   trialInfo.textContent = `Trial ${index + 1} of ${trials.length}.`;
@@ -128,20 +149,20 @@ confSlider.addEventListener("input", () => {
 confirmBtn.addEventListener("click", submitResponse);
 
 document.addEventListener("keydown", (e) => {
-  if(!trialArea.classList.contains("hidden")){
-    if(["1","2","3","4"].includes(e.key)){
+  if (!trialArea.classList.contains("hidden")) {
+    if (["1","2","3","4"].includes(e.key)) {
       const idx = Number(e.key) - 1;
       responseButtons[idx].click();
     }
-    if(e.key === "Enter" && !confidencePanel.classList.contains("hidden")){
+    if (e.key === "Enter" && !confidencePanel.classList.contains("hidden")) {
       submitResponse();
     }
   }
 });
 
 // SUBMIT TRIAL -------------------------------------
-function submitResponse(){
-  if(selectedResponse === null){
+function submitResponse() {
+  if (selectedResponse === null) {
     alert("Choose a response first.");
     return;
   }
@@ -162,7 +183,7 @@ function submitResponse(){
   });
 
   currentIndex++;
-  if(currentIndex < trials.length){
+  if (currentIndex < trials.length) {
     loadTrial(currentIndex);
   } else {
     finishExp();
@@ -170,7 +191,7 @@ function submitResponse(){
 }
 
 // END SCREEN ---------------------------------------
-function finishExp(){
+function finishExp() {
   trialArea.classList.add("hidden");
   endArea.classList.remove("hidden");
 
@@ -178,7 +199,7 @@ function finishExp(){
   summaryText.textContent = `Completed ${n} trials. Subject ID: ${subjectID}.`;
 }
 
-// CSV ----------------------------------------------
+// CSV EXPORT ---------------------------------------
 downloadBtn.addEventListener("click", () => {
   const header = Object.keys(results[0]);
   const csv = [
@@ -186,7 +207,7 @@ downloadBtn.addEventListener("click", () => {
     ...results.map(r => header.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(","))
   ].join("\n");
 
-  const blob = new Blob([csv], {type:"text/csv"});
+  const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

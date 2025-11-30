@@ -121,8 +121,8 @@ function loadTrial(index) {
   selectedResponse = null;
   responseButtons.forEach(b => b.classList.remove("active"));
   confidencePanel.classList.add("hidden");
-  confSlider.value = 50;
-  confLabel.textContent = 50;
+  confSlider.value = 3;
+  confLabel.textContent = 3;
 
   const t = trials[index];
   stimImg.src = t.img.url;     // FIXED — images load correctly

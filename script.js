@@ -2,16 +2,27 @@
 let subjectID = null;
 
 // IMAGE LISTS ------------------------------------
+const oldimageFolder = "oldpics/";
 const oldImages = [
-  { id: "old_01", url: "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=1400&q=80" },
-  { id: "old_02", url: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1400&q=80" },
-  { id: "old_03", url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80" }
+  "aardvark.jpg","anteater.jpg","brown_bear.jpg","camel.jpg","canary.jpg",
+  "carp.jpg","caterpillarhawkmoth.jpg","catfish.jpg","chipmunk.jpg","cranebug.jpg",
+  "cricket.jpg","elephantafrican.jpg","finch.jpg","firebug.jpg","flea.jpg",
+  "gerbil.jpg","giraffe.jpg","goldfish.jpg","halibut.jpg","herculesbeetle.jpg",
+  "herring.jpg","horse.jpg","hyena.jpg","leopard.jpg","llama.jpg","marmot.jpg",
+  "mouse.jpg","ostrich.jpg","palmcockatoo.jpg","partridge.jpg","pelican.jpg",
+  "perch.jpg","pigeon.jpg","pike.jpg","porcupine.jpg","prayingmantis.jpg",
+  "rabbit.jpg","reindeer.jpg","salmon.jpg","shark.jpg","sheep.jpg","shrimp.jpg",
+  "skunk.jpg","snail.jpg","starfish.jpg","tiger.jpg","turkey.jpg","waterbuffalo.jpg"
 ];
 
+const newimagesFolder = "newpic/";
 const newImages = [
-  { id: "new_01", url: "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=1400&q=80" },
-  { id: "new_02", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80" },
-  { id: "new_03", url: "https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee?w=1400&q=80" }
+ "alligator.jpg", "angelfish.jpg","ant.jpg","armadillo.jpg","assassinbug.jpg",
+  "baboon.jpg","badger.jpg","baldeagle.jpg","bat.jpg","beaver.jpg","bluejay.jpg","boar.jpg",
+"bull.jpg","butterfly.jpg","cardinal.jpg","caribou.jpg","cat.jpg","caterpillarpeacockmoth.jpg",
+  "cedarwaxwing.jpg","chameleon.jpg","cheetah.jpg","chimpanzee.jpg","clownfish.jpg","cobra.jpg","cockroach.jpg","cougar.jpg","cow.jpg","crab.jpg","crow.jpg","dolphin.jpg"
+,"dragonfly.jpg","dramaderry.jpg","duck.jpg","eagle.jpg","fennec.jpg","flamingo.jpg","gecko.jpg","gorilla.jpg"
+,"hummingbird.jpg","mahimahi.jpg","mink.jpg","mole.jpg","quail.jpg","racoon.jpg","rhino.jpg","seal.jpg","snapper.jpg","zebra.jpg"
 ];
 
 const totalTrials = oldImages.length + newImages.length;

@@ -1,225 +1,266 @@
-// SUBJECT ID
-let subjectID = null;
+/* paradigm:
+  image shown 2000ms -> choices (until response) -> confidence (until confirm) -> fixation 1000-1500ms -> next trial
+  includes subject ID, CSV download, choice and confidence RTs
+*/
 
-// IMAGE LISTS ------------------------------------
-const oldimageFolder = "oldpics/";
+// ---------- CONFIG: put your images here ----------
 const oldImages = [
-  "aardvark.jpg","anteater.jpg","brown_bear.jpg","camel.jpg","canary.jpg",
-  "carp.jpg","caterpillarhawkmoth.jpg","catfish.jpg","chipmunk.jpg","cranebug.jpg",
-  "cricket.jpg","elephantafrican.jpg","finch.jpg","firebug.jpg","flea.jpg",
-  "gerbil.jpg","giraffe.jpg","goldfish.jpg","halibut.jpg","herculesbeetle.jpg",
-  "herring.jpg","horse.jpg","hyena.jpg","leopard.jpg","llama.jpg","marmot.jpg",
-  "mouse.jpg","ostrich.jpg","palmcockatoo.jpg","partridge.jpg","pelican.jpg",
-  "perch.jpg","pigeon.jpg","pike.jpg","porcupine.jpg","prayingmantis.jpg",
-  "rabbit.jpg","reindeer.jpg","salmon.jpg","shark.jpg","sheep.jpg","shrimp.jpg",
-  "skunk.jpg","snail.jpg","starfish.jpg","tiger.jpg","turkey.jpg","waterbuffalo.jpg"
+  { id: "old_01", url: "img/old_01.jpg" },
+  { id: "old_02", url: "img/old_02.jpg" },
+  { id: "old_03", url: "img/old_03.jpg" }
 ];
-
-const newimagesFolder = "newpic/";
 const newImages = [
-  "alligator.jpg", "angelfish.jpg","ant.jpg","armadillo.jpg","assassinbug.jpg",
-  "baboon.jpg","badger.jpg","baldeagle.jpg","bat.jpg","beaver.jpg","bluejay.jpg","boar.jpg",
-  "bull.jpg","butterfly.jpg","cardinal.jpg","caribou.jpg","cat.jpg","caterpillarpeacockmoth.jpg",
-  "cedarwaxwing.jpg","chameleon.jpg","cheetah.jpg","chimpanzee.jpg","clownfish.jpg","cobra.jpg",
-  "cockroach.jpg","cougar.jpg","cow.jpg","crab.jpg","crow.jpg","dolphin.jpg",
-  "dragonfly.jpg","dramaderry.jpg","duck.jpg","eagle.jpg","fennec.jpg","flamingo.jpg","gecko.jpg",
-  "gorilla.jpg","hummingbird.jpg","mahimahi.jpg","mink.jpg","mole.jpg","quail.jpg","racoon.jpg",
-  "rhino.jpg","seal.jpg","snapper.jpg","zebra.jpg"
+  { id: "new_01", url: "img/new_01.jpg" },
+  { id: "new_02", url: "img/new_02.jpg" },
+  { id: "new_03", url: "img/new_03.jpg" }
 ];
 
-const totalTrials = oldImages.length + newImages.length;
-
-// UI elements -------------------------------------
+// ---------- UI refs ----------
 const idScreen = document.getElementById("idScreen");
 const subjectIdInput = document.getElementById("subjectIdInput");
 const startBtn = document.getElementById("startBtn");
-const headerBlock = document.getElementById("headerBlock");
-const trialArea = document.getElementById("trialArea");
-const endArea = document.getElementById("endArea");
+const previewBtn = document.getElementById("previewBtn");
 
+const trialArea = document.getElementById("trialArea");
 const stimImg = document.getElementById("stimulus");
-const responseButtons = Array.from(document.querySelectorAll(".resp"));
+const fixation = document.getElementById("fixation");
+const choicePanel = document.getElementById("choicePanel");
+const choiceButtons = Array.from(document.querySelectorAll(".resp"));
 const confidencePanel = document.getElementById("confidencePanel");
 const confSlider = document.getElementById("confidence");
 const confLabel = document.getElementById("confLabel");
 const confirmBtn = document.getElementById("confirmBtn");
-const trialInfo = document.getElementById("trialInfo");
+
 const progressText = document.getElementById("progressText");
+const trialInfo = document.getElementById("trialInfo");
+const endArea = document.getElementById("endArea");
 const summaryText = document.getElementById("summaryText");
 const downloadBtn = document.getElementById("downloadBtn");
 const restartBtn = document.getElementById("restartBtn");
 
-// experiment variables -----------------------------
-let trials = [];
+// ---------- Variables ----------
+let subjectID = null;
+let trials = []; // {img, trueLabel}
 let currentIndex = 0;
-let selectedResponse = null;
 let results = [];
 
-// START BUTTON ------------------------------------
-startBtn.addEventListener("click", () => {
-  const val = subjectIdInput.value.trim();
-  if (val === "") {
-    alert("Please enter a valid Subject ID.");
-    return;
+const IMAGE_DURATION = 2000; // ms
+const FIX_MIN = 1000; // ms
+const FIX_MAX = 1500; // ms
+
+// RT tracking
+let t_choice_shown = 0;
+let t_choice_made = 0;
+let t_conf_shown = 0;
+let t_conf_made = 0;
+
+// ---------- Helpers ----------
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
   }
-  subjectID = val;
+}
+function randFix(){ return FIX_MIN + Math.floor(Math.random()*(FIX_MAX-FIX_MIN+1)); }
+function preload(list){
+  list.forEach(it=>{
+    const i=new Image(); i.src=it.url;
+  });
+}
 
-  idScreen.classList.add("hidden");
-  headerBlock.classList.remove("hidden");
-  trialArea.classList.remove("hidden");
-
-  initTrials();
-});
-
-// TRIAL SETUP -------------------------------------
-function initTrials() {
+// ---------- Build trials ----------
+function prepareTrials(){
   trials = [];
-
-  // construct full image paths properly
-  oldImages.forEach(imgName => {
-    trials.push({
-      img: {
-        id: imgName,
-        url: oldimageFolder + imgName
-      },
-      trueLabel: "old"
-    });
-  });
-
-  newImages.forEach(imgName => {
-    trials.push({
-      img: {
-        id: imgName,
-        url: newimagesFolder + imgName
-      },
-      trueLabel: "new"
-    });
-  });
-
-  // shuffle trials
-  for (let i = trials.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [trials[i], trials[j]] = [trials[j], trials[i]];
-  }
-
+  oldImages.forEach(i=>trials.push({img:i,trueLabel:"old"}));
+  newImages.forEach(i=>trials.push({img:i,trueLabel:"new"}));
+  shuffle(trials);
   currentIndex = 0;
   results = [];
-  updateProgress();
+  progressText.textContent = `0 / ${trials.length}`;
+  preload(trials.map(t=>t.img));
+}
+
+// ---------- UI flow ----------
+startBtn.addEventListener("click", ()=>{
+  const v = subjectIdInput.value.trim();
+  if(!v){ alert("Please enter Subject ID."); return; }
+  subjectID = v;
+  idScreen.classList.add("hidden");
+  trialArea.classList.remove("hidden");
+  prepareTrials();
   loadTrial(currentIndex);
-}
+});
 
-function updateProgress() {
-  progressText.textContent = `${Math.min(currentIndex + 1, totalTrials)} / ${totalTrials}`;
-}
+previewBtn.addEventListener("click", ()=> {
+  // quick preview of all images in a new window (optional)
+  const urls = [...oldImages,...newImages].map(i=>i.url);
+  const win = window.open("", "_blank");
+  win.document.write("<h3>Image preview</h3>");
+  urls.forEach(u=> win.document.write(`<img src="${u}" style="max-width:400px;display:block;margin:8px 0;">`));
+});
 
-function loadTrial(index) {
-  if (index >= trials.length) {
-    finishExp();
-    return;
-  }
-
-  selectedResponse = null;
-  responseButtons.forEach(b => b.classList.remove("active"));
-  confidencePanel.classList.add("hidden");
-  confSlider.value = 3;
-  confLabel.textContent = 3;
-
+// Load a trial: show image for IMAGE_DURATION then choices
+function loadTrial(index){
+  if(index >= trials.length){ finishExp(); return; }
   const t = trials[index];
-  stimImg.src = t.img.url;     // FIXED — images load correctly
-  t.startTime = performance.now();
+  progressText.textContent = `${index+1} / ${trials.length}`;
+  trialInfo.textContent = `Trial ${index+1} of ${trials.length}`;
 
-  trialInfo.textContent = `Trial ${index + 1} of ${trials.length}.`;
-  updateProgress();
+  // reset UI
+  stimImg.style.display = "block";
+  stimImg.src = t.img.url;
+  fixation.classList.add("hidden");
+  choicePanel.classList.add("hidden");
+  confidencePanel.classList.add("hidden");
+  choiceButtons.forEach(b=>b.classList.remove("active"));
+
+  // show image for fixed duration
+  setTimeout(()=>{
+    // hide image
+    stimImg.style.display = "none";
+    // show choices and start choice timer
+    showChoices();
+  }, IMAGE_DURATION);
 }
 
-// RESPONSE SELECTION --------------------------------
-responseButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    responseButtons.forEach(b => b.classList.remove("active"));
+function showChoices(){
+  choicePanel.classList.remove("hidden");
+  t_choice_shown = performance.now();
+  // focus first button for accessibility
+  choiceButtons[0].focus();
+}
+
+choiceButtons.forEach(btn=>{
+  btn.addEventListener("click", ()=> {
+    // record choice RT
+    t_choice_made = performance.now();
+    const rt_choice = Math.round(t_choice_made - t_choice_shown);
+
+    // mark active
+    choiceButtons.forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
-    selectedResponse = btn.dataset.value;
-    confidencePanel.classList.remove("hidden");
+
+    // store partial data (we will add confidence later)
+    const sel = btn.dataset.value;
+    const trialRec = {
+      subjectID,
+      trialIndex: currentIndex+1,
+      imgId: trials[currentIndex].img.id || trials[currentIndex].img.url,
+      imgURL: trials[currentIndex].img.url,
+      trueLabel: trials[currentIndex].trueLabel,
+      response: sel,
+      rt_choice_ms: rt_choice,
+      ts_choice: new Date().toISOString()
+    };
+    // put it temporarily in results as last entry (will update with confidence)
+    results.push(trialRec);
+
+    // hide choices, show confidence
+    choicePanel.classList.add("hidden");
+    showConfidence();
   });
 });
 
-confSlider.addEventListener("input", () => {
+function showConfidence(){
+  confidencePanel.classList.remove("hidden");
+  t_conf_shown = performance.now();
+  confSlider.value = 50;
+  confLabel.textContent = 50;
+  confSlider.focus();
+}
+
+confSlider.addEventListener("input", ()=> {
   confLabel.textContent = confSlider.value;
 });
 
-confirmBtn.addEventListener("click", submitResponse);
+confirmBtn.addEventListener("click", submitConfidence);
 
-document.addEventListener("keydown", (e) => {
-  if (!trialArea.classList.contains("hidden")) {
-    if (["1","2","3","4"].includes(e.key)) {
-      const idx = Number(e.key) - 1;
-      responseButtons[idx].click();
-    }
-    if (e.key === "Enter" && !confidencePanel.classList.contains("hidden")) {
-      submitResponse();
-    }
+// keyboard: 1-4 for choices; Enter confirms in confidence
+document.addEventListener("keydown", (e)=>{
+  // don't intercept when id screen visible
+  if(!subjectID) return;
+  // if choices visible allow 1-4
+  if(!choicePanel.classList.contains("hidden") && ["1","2","3","4"].includes(e.key)){
+    const idx = Number(e.key)-1;
+    const btn = choiceButtons[idx];
+    if(btn) btn.click();
+  }
+  // if confidence visible Enter confirms
+  if(!confidencePanel.classList.contains("hidden") && e.key === "Enter"){
+    e.preventDefault();
+    submitConfidence();
   }
 });
 
-// SUBMIT TRIAL -------------------------------------
-function submitResponse() {
-  if (selectedResponse === null) {
-    alert("Choose a response first.");
-    return;
-  }
+// confirm confidence and proceed to fixation -> next trial
+function submitConfidence(){
+  if(confidencePanel.classList.contains("hidden")) return;
+  t_conf_made = performance.now();
+  const rt_conf = Math.round(t_conf_made - t_conf_shown);
+  const confVal = confSlider.value;
 
-  const t = trials[currentIndex];
-  const rt = Math.round(performance.now() - t.startTime);
+  // update last results entry
+  const last = results[results.length-1];
+  last.conf = confVal;
+  last.rt_conf_ms = rt_conf;
+  last.ts_conf = new Date().toISOString();
 
-  results.push({
-    subjectID: subjectID,
-    trialIndex: currentIndex + 1,
-    imgId: t.img.id,
-    imgURL: t.img.url,
-    trueLabel: t.trueLabel,
-    response: selectedResponse,
-    confidence: confSlider.value,
-    rt_ms: rt,
-    timestamp: new Date().toISOString()
-  });
-
+  // advance trial index
   currentIndex++;
-  if (currentIndex < trials.length) {
-    loadTrial(currentIndex);
-  } else {
-    finishExp();
-  }
+
+  // hide confidence and show fixation
+  confidencePanel.classList.add("hidden");
+  showFixationThenNext();
 }
 
-// END SCREEN ---------------------------------------
-function finishExp() {
+function showFixationThenNext(){
+  fixation.classList.remove("hidden");
+  fixation.style.fontSize = "48px";
+  fixation.style.lineHeight = "1";
+  fixation.textContent = "+";
+  // random pause between FIX_MIN and FIX_MAX
+  const wait = randFix();
+  setTimeout(()=>{
+    fixation.classList.add("hidden");
+    loadTrial(currentIndex);
+  }, wait);
+}
+
+function finishExp(){
   trialArea.classList.add("hidden");
   endArea.classList.remove("hidden");
-
-  const n = results.length;
-  summaryText.textContent = `Completed ${n} trials. Subject ID: ${subjectID}.`;
+  summaryText.textContent = `Completed ${results.length} trials. Subject: ${subjectID}`;
 }
 
-// CSV EXPORT ---------------------------------------
-downloadBtn.addEventListener("click", () => {
-  const header = Object.keys(results[0]);
-  const csv = [
-    header.join(","),
-    ...results.map(r => header.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(","))
-  ].join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv" });
+// CSV download
+downloadBtn.addEventListener("click", ()=>{
+  if(results.length === 0){ alert("No results to download."); return; }
+  const header = ["subjectID","trialIndex","imgId","imgURL","trueLabel","response","conf","rt_choice_ms","rt_conf_ms","ts_choice","ts_conf"];
+  const csvRows = [header.join(",")];
+  results.forEach(r=>{
+    const row = header.map(h=>{
+      let v = r[h] ?? "";
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(",")||v.includes('"')||v.includes("\n")) return `"${v}"`;
+      return v;
+    }).join(",");
+    csvRows.push(row);
+  });
+  const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `nmph_mtest_TI_${subjectID}.csv`;
+  a.download = `nmph_mtest_TI_${subjectID || "sub"}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 });
 
-// RESTART -------------------------------------------
-restartBtn.addEventListener("click", () => {
+// restart
+restartBtn.addEventListener("click", ()=>{
   endArea.classList.add("hidden");
-  headerBlock.classList.remove("hidden");
-  trialArea.classList.remove("hidden");
-  initTrials();
+  idScreen.classList.remove("hidden");
+  subjectIdInput.value = subjectID || "";
 });
+
+// Initial preload of images in the lists (optional)
+preload([...oldImages, ...newImages]);

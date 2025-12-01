@@ -1,364 +1,126 @@
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+:root {
+  --bg: #0f1724;
+  --card: #0b1220;
+  --accent: #7dd3fc;
+  --muted: #94a3b8;
+  --white: #e6eef8;
+  --glass: rgba(255,255,255,0.03);
 }
 
-.card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+html,body{
+  height:100%;
+  margin:0;
+  font-family: Inter, system-ui, sans-serif;
+  background: linear-gradient(180deg,#051225 0%, #08182b 100%);
+  color:var(--white);
 }
 
-.hidden {
-  display: none !important;
+/* Layout container */
+.container{
+  max-width:900px;
+  margin:36px auto;
+  padding:24px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:12px;
+  box-shadow:0 6px 24px rgba(0,0,0,0.6);
+  min-height:70vh;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
 }
 
-#progressBar {
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 10px;
+.toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.imageWrap {
-  text-align: center;
-  margin: 20px 0;
+.screen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
 }
 
-#stimulus {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid #ccc;
+.screen.active{ display:flex; }
+
+.card{
+  background:var(--glass);
+  padding:18px;
+  border-radius:10px;
+  width:100%;
 }
 
-.fixation {
-  font-size: 48px;
-  text-align: center;
-  margin: 100px 0;
-  color: #000;
+label{
+  display:block;
+  text-align:left;
+  color:var(--muted);
+  margin-bottom:5px;
 }
 
-.responses {
-  text-align: center;
-  margin: 20px 0;
+input[type="text"]{
+  width:100%;
+  padding:10px;
+  background:transparent;
+  color:var(--white);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;
 }
 
-.choiceHint {
-  margin-bottom: 10px;
-  font-style: italic;
+button{
+  padding:10px 16px;
+  border:0;
+  border-radius:8px;
+  background:var(--accent);
+  color:#00263a;
+  font-weight:600;
+  cursor:pointer;
 }
 
-.bigButtons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+.choice-row{
+  display:flex;
+  gap:18px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:8px;
 }
 
-.choiceBtn, .confBtn {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f8f8f8;
+.choice{
+  background:rgba(255,255,255,0.05);
+  padding:12px 18px;
+  border-radius:10px;
+  min-width:160px;
 }
 
-.choiceBtn strong {
-  font-size: 24px;
-  display: block;
+.muted{ color:var(--muted); }
+.small{ font-size:13px; }
+
+.img-stage{
+  width:640px;
+  max-width:95%;
+  height:380px;
+  background:linear-gradient(180deg,#071428,#022236);
+  border-radius:8px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
 }
 
-.confHeader {
-  text-align: center;
-  margin-bottom: 10px;
+.img-stage img{
+  max-width:100%;
+  max-height:100%;
 }
 
-.confButtons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+footer{
+  text-align:center;
+  margin-top:12px;
+  color:var(--muted);
 }
 
-.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
+.debug{
+  font-size:12px;
+  color:var(--muted);
+  max-height:200px;
+  overflow:auto;
 }
-
-.row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.primary {
-  background: #007bff;
-  color: white;
-}
-
-.small {
-  font-size: 0.8em;
-}
-
-.muted {
-  color: #666;
-}
-
-kbd {
-  background: #eee;
-  padding: 2px 4px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-}
-
-Your HTML is already well-structured and doesn't have major issues—it matches the JS selectors perfectly. I've made a couple of minor tweaks for better accessibility and consistency:
-
-- Removed the initial `aria-hidden="true"` from `#confidencePanel` since the JS handles visibility with `.hidden`, and we can dynamically manage ARIA attributes if needed (but it's optional here).
-- Added `alt` text to buttons where appropriate (though not strictly necessary for non-image buttons).
-- Ensured all sections have consistent classes.
-
-Here's the slightly updated HTML (copy-paste into your file):
-
-```html
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>nmph_mtest_TI — Memory Test</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <main class="container">
-    <!-- START / ID SCREEN -->
-    <section id="idScreen" class="card">
-      <h2>Memory Test — Subject Info</h2>
-      <label for="subjectIdInput">Subject ID</label>
-      <input id="subjectIdInput" type="text" placeholder="e.g., 001" autocomplete="off" />
-      <div class="row">
-        <button id="startBtn" class="primary">Start Test</button>
-      </div>
-      <p class="muted small">
-        Trial sequence: image 2s → choices (press <kbd>F</kbd> = new, <kbd>J</kbd> = old) → confidence (press <kbd>1</kbd>–<kbd>5</kbd>) → fixation 1–1.5s → next.
-      </p>
-    </section>
-    <!-- TRIAL AREA -->
-    <section id="trialArea" class="card hidden" aria-live="polite">
-      <div id="progressBar"><span id="progressText">0 / 0</span></div>
-      <div id="displayArea" class="imageWrap">
-        <img id="stimulus" src="" alt="Stimulus image" />
-        <div id="fixation" class="fixation hidden" aria-hidden="true">+</div>
-      </div>
-      <div id="choicePanel" class="responses hidden" role="group" aria-label="memory choices">
-        <div class="choiceHint">Press <kbd>F</kbd> = NEW &nbsp;&nbsp; Press <kbd>J</kbd> = OLD</div>
-        <div class="bigButtons">
-          <button class="choiceBtn" data-value="new"><strong>F</strong><div>NEW</div></button>
-          <button class="choiceBtn" data-value="old"><strong>J</strong><div>OLD</div></button>
-        </div>
-      </div>
-      <div id="confidencePanel" class="card hidden">
-        <div class="confHeader">Rate your confidence (1 = low → 5 = high)</div>
-        <div class="confButtons">
-          <button class="confBtn" data-value="1">1</button>
-          <button class="confBtn" data-value="2">2</button>
-          <button class="confBtn" data-value="3">3</button>
-          <button class="confBtn" data-value="4">4</button>
-          <button class="confBtn" data-value="5">5</button>
-        </div>
-        <div class="small muted">Or press keys <kbd>1</kbd>–<kbd>5</kbd>. Press <kbd>Enter</kbd> to continue after clicking.</div>
-      </div>
-      <div class="small muted" id="trialInfo">Waiting to start...</div>
-    </section>
-    <!-- END SCREEN -->
-    <section id="endArea" class="card hidden">
-      <h2>Test complete</h2>
-      <p id="summaryText"></p>
-      <div class="row">
-        <button id="downloadBtn" class="primary">Download CSV</button>
-        <button id="restartBtn">Restart</button>
-      </div>
-    </section>
-  </main>
-  <script src="script.js"></script>
-</body>
-</html>
-```
-
-And here's a complete `style.css` file to make it look good and functional. This includes responsive design, button hover effects, and proper centering. Save this as `style.css` in the same folder as your HTML.
-
-```css
-/* Reset and base styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: #f4f4f4;
-  font-family: Arial, sans-serif;
-  line-height: 1.5;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.hidden {
-  display: none !important;
-}
-
-#progressBar {
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.imageWrap {
-  text-align: center;
-  margin: 20px 0;
-  min-height: 300px; /* Prevent layout jumps */
-}
-
-#stimulus {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.fixation {
-  font-size: 48px;
-  text-align: center;
-  margin: 100px 0;
-  color: #000;
-}
-
-.responses {
-  text-align: center;
-  margin: 20px 0;
-}
-
-.choiceHint {
-  margin-bottom: 10px;
-  font-style: italic;
-  color: #666;
-}
-
-.bigButtons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.choiceBtn, .confBtn {
-  padding: 15px 30px;
-  font-size: 18px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f8f8f8;
-  transition: background 0.2s;
-}
-
-.choiceBtn:hover, .confBtn:hover {
-  background: #e0e0e0;
-}
-
-.choiceBtn strong {
-  font-size: 28px;
-  display: block;
-}
-
-.confHeader {
-  text-align: center;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.confButtons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.active {
-  background: #007bff !important;
-  color: white !important;
-  border-color: #007bff !important;
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.primary {
-  background: #007bff;
-  color: white;
-  border: none;
-}
-
-.primary:hover {
-  background: #0056b3;
-}
-
-.small {
-  font-size: 0.8em;
-}
-
-.muted {
-  color: #666;
-}
-
-kbd {
-  background: #eee;
-  padding: 2px 4px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .bigButtons {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .choiceBtn {
-    padding: 10px 20px;
-    font-size: 16px;
-  }
-  
-  .confButtons {
-    flex-wrap: wrap;
-  }
-}
-```
-
-This CSS ensures:
-- Elements are hidden properly with `.hidden`.
-- Buttons are large and clickable (good for experiments).
-- Layout is centered and responsive (works on mobile/desktop).
-- Active confidence buttons highlight in blue.
-- No layout shifts during trials (e.g., min-height on image area).
-
-Test it again with the updated JS from before, this CSS, and your images in the `img/` folder. If there's still an issue (e.g., specific styling problem), describe it!

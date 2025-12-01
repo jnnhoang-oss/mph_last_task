@@ -8,7 +8,6 @@
 </head>
 <body>
   <main class="container">
-
     <!-- START / ID SCREEN -->
     <section id="idScreen" class="card">
       <h2>Memory Test — Subject Info</h2>
@@ -21,16 +20,13 @@
         Trial sequence: image 2s → choices (press <kbd>F</kbd> = new, <kbd>J</kbd> = old) → confidence (press <kbd>1</kbd>–<kbd>5</kbd>) → fixation 1–1.5s → next.
       </p>
     </section>
-
     <!-- TRIAL AREA -->
     <section id="trialArea" class="card hidden" aria-live="polite">
       <div id="progressBar"><span id="progressText">0 / 0</span></div>
-
       <div id="displayArea" class="imageWrap">
-        <img id="stimulus" src="" alt="Stimulus" />
+        <img id="stimulus" src="" alt="Stimulus image" />
         <div id="fixation" class="fixation hidden" aria-hidden="true">+</div>
       </div>
-
       <div id="choicePanel" class="responses hidden" role="group" aria-label="memory choices">
         <div class="choiceHint">Press <kbd>F</kbd> = NEW &nbsp;&nbsp; Press <kbd>J</kbd> = OLD</div>
         <div class="bigButtons">
@@ -38,8 +34,7 @@
           <button class="choiceBtn" data-value="old"><strong>J</strong><div>OLD</div></button>
         </div>
       </div>
-
-      <div id="confidencePanel" class="card hidden" aria-hidden="true">
+      <div id="confidencePanel" class="card hidden">
         <div class="confHeader">Rate your confidence (1 = low → 5 = high)</div>
         <div class="confButtons">
           <button class="confBtn" data-value="1">1</button>
@@ -50,10 +45,8 @@
         </div>
         <div class="small muted">Or press keys <kbd>1</kbd>–<kbd>5</kbd>. Press <kbd>Enter</kbd> to continue after clicking.</div>
       </div>
-
       <div class="small muted" id="trialInfo">Waiting to start...</div>
     </section>
-
     <!-- END SCREEN -->
     <section id="endArea" class="card hidden">
       <h2>Test complete</h2>
@@ -63,9 +56,7 @@
         <button id="restartBtn">Restart</button>
       </div>
     </section>
-
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>

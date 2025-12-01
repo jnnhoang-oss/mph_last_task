@@ -3,65 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title> Memory Test</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>nmph_mtest_TI — Memory Test</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
 
-    <!-- SUBJECT ID SCREEN -->
+    <!-- START / ID SCREEN -->
     <section id="idScreen" class="card">
       <h2>Enter Subject ID</h2>
-      <label for="subjectIdInput">Subject ID:</label>
-      <input id="subjectIdInput" type="text" placeholder="e.g., 101" />
-      <button id="startBtn" class="primary" style="margin-top:10px;">Start Test</button>
+      <input id="subjectIdInput" type="text" placeholder="e.g., S001" autocomplete="off" />
+      <div class="row">
+        <button id="startBtn" class="primary">Start Test</button>
+        <button id="previewBtn">Preview Images</button>
+      </div>
+      <p class="muted small">Images will display for exactly 2 seconds, then choices appear.</p>
     </section>
 
-    <header id="headerBlock" class="hidden">
-      <h1>nmph_mtest_TI — Memory Test</h1>
-      <p class="instructions">
-        As you are aware now, we will be having a memory test for all the images you observed last week.
-        For each image choose: <strong>definitely new</strong>, <strong>maybe new</strong>, 
-        <strong>maybe old</strong>, <strong>definitely old</strong>.
-        Afterward, rate your confidence (1-5).  
-        Keyboard: <kbd>1</kbd>-<kbd>4</kbd> for responses, <kbd>Enter</kbd> to confirm confidence.
-      </p>
-    </header>
-
-    <!-- MAIN TRIAL AREA -->
+    <!-- TRIAL AREA -->
     <section id="trialArea" class="card hidden">
       <div id="progressBar"><span id="progressText">0 / 0</span></div>
 
-      <div class="imageWrap">
-        <img id="stimulus" src="" alt="Memory test stimulus" />
+      <div id="displayArea" class="imageWrap">
+        <img id="stimulus" src="" alt="Stimulus" />
+        <div id="fixation" class="fixation hidden">+</div>
       </div>
 
-      <div id="responsePanel" class="responses">
+      <div id="choicePanel" class="responses hidden" role="radiogroup" aria-label="memory choices">
         <button class="resp" data-value="definitely_new"><span class="key">1</span> Definitely new</button>
         <button class="resp" data-value="maybe_new"><span class="key">2</span> Maybe new</button>
         <button class="resp" data-value="maybe_old"><span class="key">3</span> Maybe old</button>
         <button class="resp" data-value="definitely_old"><span class="key">4</span> Definitely old</button>
       </div>
 
-      <div id="confidencePanel" class="card hidden">
-        <label for="confidence">Confidence: <span id="confLabel">1</span>/5</label>
-        <input id="confidence" type="range" min="1" max="5" value="5" />
+      <div id="confidencePanel" class="card hidden" aria-hidden="true">
+        <label for="confidence">Confidence: <span id="confLabel">50</span>/100</label>
+        <input id="confidence" type="range" min="0" max="100" value="50" />
         <div class="confControls">
           <button id="confirmBtn" class="primary">Confirm & Next (Enter)</button>
         </div>
       </div>
 
-      <div class="small muted" id="trialInfo">Press a response to begin.</div>
+      <div class="small muted" id="trialInfo">Waiting to start...</div>
     </section>
 
     <!-- END SCREEN -->
     <section id="endArea" class="card hidden">
       <h2>Test complete</h2>
-      <p>Thank you — you’ve completed the test. Download your results below.</p>
       <p id="summaryText"></p>
-
-      <button id="downloadBtn" class="primary">Download CSV</button>
-      <button id="restartBtn">Restart Test</button>
+      <div class="row">
+        <button id="downloadBtn" class="primary">Download CSV</button>
+        <button id="restartBtn">Restart</button>
+      </div>
     </section>
 
   </main>

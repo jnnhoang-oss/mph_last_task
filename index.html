@@ -2,78 +2,288 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Surprise Memory Test</title>
 
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #dcdcdc;
+    }
+
+    header {
+      background:#0072bd;
+      padding:15px;
+      color:white;
+      text-align:left;
+      font-size:20px;
+      font-weight:bold;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 25px auto;
+      background: #eeeeee;
+      padding: 25px;
+      border: 1px solid #b3b3b3;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .screen {
+      display:none;
+    }
+    .active {
+      display:block;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      background: #0072bd;
+      color:white;
+      border:none;
+      border-radius: 4px;
+      cursor:pointer;
+    }
+    button:hover {
+      background:#005c97;
+    }
+
+    .img-holder {
+      width:100%;
+      height:350px;
+      border:2px solid #b3b3b3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:white;
+      margin:20px 0;
+    }
+
+    .muted { color:#555; }
+    .choice-row { display:flex; gap:10px; margin:15px 0; }
+  </style>
 </head>
 
-<body>
-  <main class="container">
 
-    <!-- Toolbar header -->
-    <div class="toolbar card">
-      <div>
-        <h1>Surprise Memory Test</h1>
-        <div class="small">Keys: <strong>F</strong> = New, <strong>J</strong> = Old, then confidence <strong>1–5</strong></div>
-      </div>
-      <div id="progressIndicator" class="status">Ready</div>
+<body>
+<header>Surprise Memory Test</header>
+
+<main>
+
+  <!-- Participant Info + Anticipation Question -->
+  <section id="idScreen" class="screen active">
+    <h2>Participant Information</h2>
+
+    <label>Participant ID</label><br>
+    <input id="subid" type="text" style="padding:8px;width:200px;margin:10px 0;"><br>
+
+    <p>Did you anticipate that there would be a memory test today based on the images from yesterday?</p>
+
+    <div class="choice-row">
+      <button id="antYes">Yes</button>
+      <button id="antNo">No</button>
     </div>
 
-
-    <!-- ---------------------------------------- -->
-    <!-- PARTICIPANT ID SCREEN -->
-    <!-- ---------------------------------------- -->
-    <section id="idScreen" class="screen active card">
-
-      <label for="subid">Participant ID</label>
-      <input id="subid" type="text" placeholder="e.g., p101">
-
-      <p class="muted instructions">
-        You will see an image for <strong>2 seconds</strong>.
-        After it disappears:
-        <br>• Press <strong>F</strong> if the image is NEW
-        <br>• Press <strong>J</strong> if the image is OLD
-        <br>• Then rate confidence (1–5)
-      </p>
-
-      <button id="startBtn">Start Test</button>
-    </section>
+    <button id="startBtn">Begin Test</button>
+  </section>
 
 
-    <!-- ---------------------------------------- -->
-    <!-- IMAGE DISPLAY SCREEN -->
-    <!-- ---------------------------------------- -->
-    <section id="imageScreen" class="screen card">
-      <div id="imgStage" class="img-stage">
-        <div class="muted">Image loading…</div>
-      </div>
-      <div class="small muted">Image will display for 2 seconds.</div>
-    </section>
+  <!-- Image Screen -->
+  <section id="imageScreen" class="screen">
+    <h2>Image</h2>
+    <div class="img-holder" id="imgHolder">Image will appear here</div>
+  </section>
 
 
-    <!-- ---------------------------------------- -->
-    <!-- NEW/OLD CHOICE SCREEN -->
-    <!-- ---------------------------------------- -->
-    <section id="choiceScreen" class="screen card">
-      <p class="muted">Was the image NEW or OLD?</p>
-      <div class="choice-row">
-        <div class="choice"><strong>F</strong> — NEW</div>
-        <div class="choice"><strong>J</strong> — OLD</div>
-      </div>
-    </section>
+  <!-- NEW/OLD Screen -->
+  <section id="choiceScreen" class="screen">
+    <h2>Was the image NEW or OLD?</h2>
+    <div class="choice-row">
+      <button id="respF">F — NEW</button>
+      <button id="respJ">J — OLD</button>
+    </div>
+  </section>
 
 
-    <!-- ---------------------------------------- -->
-    <!-- CONFIDENCE SCREEN -->
-    <!-- ---------------------------------------- -->
-    <section id="confidenceScreen" class="screen card">
-      <p class="muted">Confidence rating (1 = low, 5 = high)</p>
+  <!-- Confidence Screen -->
+  <section id="confidenceScreen" class="screen">
+    <h2>Confidence (1–5)</h2>
+    <div class="choice-row">
+      <button class="confBtn" data-value="1">1</button>
+      <button class="confBtn" data-value="2">2</button>
+      <button class="confBtn" data-value="3">3</button>
+      <button class="confBtn" data-value="4">4</button>
+      <button class="confBtn" data-value="5">5</button>
+    </div>
+  </section>
 
-      <div class="choice-row">
-        <div class="choice">Press 1</div>
-        <div class="choice">Press 2</div>
-        <div class="choice">Press 3</div>
-        <div class="choice">Press 4</div>
-        <div class="choice">Press
+
+  <!-- End Screen -->
+  <section id="endScreen" class="screen">
+    <h2>Test Complete</h2>
+
+    <button id="downloadCSV">Download CSV</button>
+    <button id="downloadJSON">Download JSON</button>
+    <button id="restartBtn">Restart</button>
+
+    <pre id="debugLog" style="font-size:12px;margin-top:20px;"></pre>
+  </section>
+
+</main>
+
+
+<script>
+/* ------------------------------
+   VARIABLES
+------------------------------ */
+let trials = [
+  {img:"stim1.jpg", old:0},
+  {img:"stim2.jpg", old:1},
+  {img:"stim3.jpg", old:0},
+];
+let idx = 0;
+let anticipation = null;
+let data = [];
+
+
+/* ------------------------------
+   UTIL: ITI 1–1.5 seconds
+------------------------------ */
+function randomITI() {
+  return 1000 + Math.random()*500;
+}
+
+
+/* ------------------------------
+   SCREEN CONTROL
+------------------------------ */
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+
+/* ------------------------------
+   FLOW
+------------------------------ */
+document.getElementById("antYes").onclick = () => anticipation = "Yes";
+document.getElementById("antNo").onclick = () => anticipation = "No";
+
+document.getElementById("startBtn").onclick = () => {
+  if (!document.getElementById("subid").value.trim()) {
+    alert("Please enter Participant ID.");
+    return;
+  }
+  nextTrial();
+};
+
+
+/* ------------------------------
+   TRIAL SEQUENCE
+------------------------------ */
+function nextTrial() {
+  if (idx >= trials.length) {
+    show("endScreen");
+    document.getElementById("debugLog").textContent = JSON.stringify(data,null,2);
+    return;
+  }
+
+  // show image
+  let t = trials[idx];
+  let holder = document.getElementById("imgHolder");
+  holder.innerHTML = `<img src="${t.img}" style="max-width:100%;max-height:100%;">`;
+  show("imageScreen");
+
+  // show for 2 sec → NEW/OLD screen
+  setTimeout(() => {
+    show("choiceScreen");
+    t.choiceStart = performance.now();
+  }, 2000);
+}
+
+
+/* ------------------------------
+   NEW/OLD CHOICE
+------------------------------ */
+document.getElementById("respF").onclick = () => recordChoice("F");
+document.getElementById("respJ").onclick = () => recordChoice("J");
+
+function recordChoice(resp) {
+  let t = trials[idx];
+  t.response = resp;
+  t.choiceRT = performance.now() - t.choiceStart;
+
+  show("confidenceScreen");
+}
+
+
+/* ------------------------------
+   CONFIDENCE
+------------------------------ */
+document.querySelectorAll(".confBtn").forEach(btn => {
+  btn.onclick = () => {
+    let t = trials[idx];
+    t.confidence = btn.dataset.value;
+
+    // log data
+    data.push({
+      subid: document.getElementById("subid").value,
+      anticipation: anticipation,
+      img: t.img,
+      old: t.old,
+      response: t.response,
+      confidence: t.confidence,
+      choiceRT: t.choiceRT.toFixed(1),
+      iti: randomITIValue.toFixed(1)
+    });
+
+    // ITI
+    let randomITIValue = randomITI();
+
+    show("imageScreen");
+    document.getElementById("imgHolder").innerHTML = "<div class='muted'>+</div>";
+
+    setTimeout(() => {
+      idx++;
+      nextTrial();
+    }, randomITIValue);
+  };
+});
+
+
+/* ------------------------------
+   DOWNLOAD FUNCTIONS
+------------------------------ */
+document.getElementById("downloadCSV").onclick = () => {
+  let rows = ["subid,anticipation,img,old,response,confidence,choiceRT,iti"];
+  data.forEach(r => {
+    rows.push(`${r.subid},${r.anticipation},${r.img},${r.old},${r.response},${r.confidence},${r.choiceRT},${r.iti}`);
+  });
+  let blob = new Blob([rows.join("\n")], {type:"text/csv"});
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "memory_test.csv";
+  a.click();
+};
+
+document.getElementById("downloadJSON").onclick = () => {
+  let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "memory_test.json";
+  a.click();
+};
+
+document.getElementById("restartBtn").onclick = () => location.reload();
+
+</script>
+
+</body>
+</html>

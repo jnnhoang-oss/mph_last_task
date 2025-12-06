@@ -3,47 +3,109 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Memory Test</title>
+  <title>nmph_mtest_TI — Surprise Memory Test</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="container">
-    <!-- Anticipation Screen -->
-    <section id="anticipationScreen" class="screen active">
-      <h1>Memory Test</h1>
-      <p>Have you anticipated that there will be a memory test today about the images you saw yesterday?</p>
-      <div class="btn-row">
-        <button id="antYes">Yes</button>
-        <button id="antNo">No</button>
+
+    <!-- ID Screen -->
+    <section id="idScreen" class="screen active">
+      <h2>Welcome</h2>
+      <label for="subid">Participant ID</label>
+      <input id="subid" type="text" placeholder="e.g., p101" />
+      <p class="muted small">Press <strong>Enter</strong> to continue</p>
+    </section>
+
+    <!-- Instructions Screen -->
+    <section id="instructionsScreen" class="screen">
+      <h2>Important Instructions</h2>
+      <p>Read carefully and stay fully engaged. Press <strong>Enter</strong> to continue.</p>
+    </section>
+
+    <!-- Memory Test Instructions Screen -->
+    <section id="memoryInstructionsScreen" class="screen">
+      <h2>Memory Test Instructions</h2>
+      <p>You will see old and new images for 2 seconds each. Press <strong>F</strong> if NEW, <strong>J</strong> if OLD, then rate your confidence (1-5). Press <strong>Enter</strong> to continue.</p>
+    </section>
+
+    <!-- Pre-test Question 1 -->
+    <section id="question1Screen" class="screen">
+      <h2>Pre-Test Question 1</h2>
+      <p>Have you anticipated that you will be having a memory test today?</p>
+      <div id="q1Scale" class="rating-scale">
+        <div class="rating-option" data-value="1">1</div>
+        <div class="rating-option" data-value="2">2</div>
+        <div class="rating-option" data-value="3">3</div>
+        <div class="rating-option" data-value="4">4</div>
+        <div class="rating-option" data-value="5">5</div>
       </div>
-      <button id="startBtn" class="start">Start Test</button>
+      <div class="rating-labels">
+        <span>Not at all</span>
+        <span>Very much</span>
+      </div>
+    </section>
+
+    <!-- Pre-test Question 2 -->
+    <section id="question2Screen" class="screen">
+      <h2>Pre-Test Question 2</h2>
+      <p>Have you been thinking about the images you previously arranged?</p>
+      <div id="q2Scale" class="rating-scale">
+        <div class="rating-option" data-value="1">1</div>
+        <div class="rating-option" data-value="2">2</div>
+        <div class="rating-option" data-value="3">3</div>
+        <div class="rating-option" data-value="4">4</div>
+        <div class="rating-option" data-value="5">5</div>
+      </div>
+      <div class="rating-labels">
+        <span>Not at all</span>
+        <span>Very much</span>
+      </div>
+    </section>
+
+    <!-- Ready Screen -->
+    <section id="readyScreen" class="screen">
+      <h2>Ready to Begin</h2>
+      <p>Press <strong>Enter</strong> to start the memory test</p>
     </section>
 
     <!-- Image Screen -->
     <section id="imageScreen" class="screen">
-      <div id="imgStage" class="img-stage">Image will appear</div>
+      <div class="img-stage" id="imgStage">+</div>
     </section>
 
-    <!-- Response Screen -->
-    <section id="responseScreen" class="screen">
-      <h2>Was the image NEW or OLD?</h2>
-      <p>Press <strong>F</strong> for NEW or <strong>J</strong> for OLD</p>
+    <!-- Choice Screen -->
+    <section id="choiceScreen" class="screen">
+      <p>Was the image NEW or OLD?</p>
+      <div class="choice"><strong>F</strong> — NEW</div>
+      <div class="choice"><strong>J</strong> — OLD</div>
     </section>
 
     <!-- Confidence Screen -->
     <section id="confidenceScreen" class="screen">
-      <h2>Confidence</h2>
-      <p>Rate confidence (1–5)</p>
+      <p>How confident are you? (1 = not confident, 5 = very confident)</p>
+      <div class="rating-scale">
+        <div class="rating-option" data-value="1">1</div>
+        <div class="rating-option" data-value="2">2</div>
+        <div class="rating-option" data-value="3">3</div>
+        <div class="rating-option" data-value="4">4</div>
+        <div class="rating-option" data-value="5">5</div>
+      </div>
+    </section>
+
+    <!-- Feedback Screen -->
+    <section id="feedbackScreen" class="screen">
+      <h1 id="feedbackText">Correct!</h1>
     </section>
 
     <!-- End Screen -->
     <section id="endScreen" class="screen">
-      <h2>Test Complete</h2>
-      <button id="downloadCSV">Download CSV</button>
-      <button id="restartBtn">Restart</button>
+      <h2>Experiment Complete!</h2>
+      <p>Thank you for your participation!</p>
+      <p>Your data has been automatically downloaded.</p>
     </section>
-  </main>
 
+  </main>
   <script src="script.js"></script>
 </body>
 </html>

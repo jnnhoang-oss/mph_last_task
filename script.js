@@ -1,165 +1,112 @@
-/* ------------------------------
-   TRIAL LIST
-   (change this to your real images)
------------------------------- */
-let trials = [
-  {img:"stim1.jpg", old:0},
-  {img:"stim2.jpg", old:1},
-  {img:"stim3.jpg", old:0},
-];
+// Core structure
+const anticipationScreen = document.getElementById("anticipationScreen");
+const imageScreen = document.getElementById("imageScreen");
+const responseScreen = document.getElementById("responseScreen");
+const confidenceScreen = document.getElementById("confidenceScreen");
+const endScreen = document.getElementById("endScreen");
 
-let idx = 0;
-let anticipation = null;
-let data = [];
+const imgStage = document.getElementById("imgStage");
 
+let responses = [];
+let trialIndex = 0;
+let itiDuration = 0;
 
-/* ------------------------------
-   UTILITY: random ITI (1–1.5 s)
------------------------------- */
-function randomITI() {
-  return 1000 + Math.random()*500;
-}
+// Placeholder image list
+const images = ["img1.jpg", "img2.jpg", "img3.jpg"]; // replace with your image paths
 
+// Buttons
+const antYes = document.getElementById("antYes");
+const antNo = document.getElementById("antNo");
+let anticipationAnswer = null;
 
-/* ------------------------------
-   SCREEN CONTROL
------------------------------- */
-function show(id) {
-  document.querySelectorAll(".screen")
-    .forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+antYes.onclick = () => (anticipationAnswer = "Yes");
+antNo.onclick = () => (anticipationAnswer = "No");
 
-
-/* ------------------------------
-   ANTICIPATION QUESTION
------------------------------- */
-document.getElementById("antYes").onclick = () => anticipation = "Yes";
-document.getElementById("antNo").onclick = () => anticipation = "No";
-
-
-/* ------------------------------
-   START BUTTON
------------------------------- */
 document.getElementById("startBtn").onclick = () => {
-  if (!document.getElementById("subid").value.trim()) {
-    alert("Please enter Participant ID.");
-    return;
-  }
-  nextTrial();
+  if (!anticipationAnswer) return;
+  anticipationScreen.classList.remove("active");
+  runTrial();
 };
 
-
-/* ------------------------------
-   TRIAL SEQUENCE
------------------------------- */
-function nextTrial() {
-  if (idx >= trials.length) {
-    show("endScreen");
-    document.getElementById("debugLog").textContent =
-      JSON.stringify(data, null, 2);
+function runTrial() {
+  if (trialIndex >= images.length) {
+    endExperiment();
     return;
   }
 
-  let t = trials[idx];
-  let holder = document.getElementById("imgHolder");
+  // Fix ITI between 1–1.5s
+  itiDuration = 1000 + Math.random() * 500;
 
-  holder.innerHTML = `<img src="${t.img}" style="max-width:100%;max-height:100%;">`;
-  show("imageScreen");
+  // blank ITI
+  setTimeout(() => showImage(), itiDuration);
+}
 
-  // show image for 2 seconds
+function showImage() {
+  imageScreen.classList.add("active");
+  imgStage.textContent = "";
+  imgStage.style.backgroundImage = `url(${images[trialIndex]})`;
+  imgStage.style.backgroundSize = "contain";
+  imgStage.style.backgroundRepeat = "no-repeat";
+  imgStage.style.backgroundPosition = "center";
+
   setTimeout(() => {
-    show("choiceScreen");
-    t.choiceStart = performance.now();
-  }, 2000);
+    imageScreen.classList.remove("active");
+    startResponse();
+  }, 2000); // 2s image
 }
 
+let currentResponse = null;
 
-/* ------------------------------
-   NEW/OLD RESPONSE
------------------------------- */
-document.getElementById("respF").onclick = () => recordChoice("F");
-document.getElementById("respJ").onclick = () => recordChoice("J");
+function startResponse() {
+  currentResponse = { iti: itiDuration, image: images[trialIndex] };
+  responseScreen.classList.add("active");
 
-function recordChoice(resp) {
-  let t = trials[idx];
-  t.response = resp;
-  t.choiceRT = performance.now() - t.choiceStart;
-  show("confidenceScreen");
+  document.onkeydown = (e) => {
+    if (e.key.toLowerCase() === "f") {
+      currentResponse.choice = "New";
+      responseScreen.classList.remove("active");
+      askConfidence();
+    }
+    if (e.key.toLowerCase() === "j") {
+      currentResponse.choice = "Old";
+      responseScreen.classList.remove("active");
+      askConfidence();
+    }
+  };
 }
 
+function askConfidence() {
+  confidenceScreen.classList.add("active");
 
-/* ------------------------------
-   CONFIDENCE RESPONSE
------------------------------- */
-document.querySelectorAll(".confBtn").forEach(btn => {
-  btn.onclick = () => {
-    let t = trials[idx];
-    t.confidence = btn.dataset.value;
+  document.onkeydown = (e) => {
+    if (["1", "2", "3", "4", "5"].includes(e.key)) {
+      currentResponse.confidence = e.key;
+      responses.push(currentResponse);
+      confidenceScreen.classList.remove("active");
+      trialIndex++;
+      runTrial();
+    }
+  };
+}
 
-    // ITI
-    let itiValue = randomITI();
+function endExperiment() {
+  endScreen.classList.add("active");
 
-    // Store trial data
-    data.push({
-      subid: document.getElementById("subid").value,
-      anticipation: anticipation,
-      img: t.img,
-      old: t.old,
-      response: t.response,
-      confidence: t.confidence,
-      choiceRT: t.choiceRT.toFixed(1),
-      iti: itiValue.toFixed(1)
+  document.getElementById("downloadCSV").onclick = () => {
+    let csv = "image,choice,confidence,iti\n";
+    responses.forEach(r => {
+      csv += `${r.image},${r.choice},${r.confidence},${r.iti}` + "\n";
     });
 
-    // ITI screen (fixation)
-    show("imageScreen");
-    document.getElementById("imgHolder").innerHTML =
-      "<div class='muted' style='font-size:40px;'>+</div>";
-
-    setTimeout(() => {
-      idx++;
-      nextTrial();
-    }, itiValue);
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "memory_test.csv";
+    a.click();
   };
-});
 
-
-/* ------------------------------
-   DOWNLOAD CSV
------------------------------- */
-document.getElementById("downloadCSV").onclick = () => {
-  let rows = ["subid,anticipation,img,old,response,confidence,choiceRT,iti"];
-
-  data.forEach(r => {
-    rows.push(`${r.subid},${r.anticipation},${r.img},${r.old},${r.response},${r.confidence},${r.choiceRT},${r.iti}`);
-  });
-
-  let blob = new Blob([rows.join("\n")], {type:"text/csv"});
-  let url = URL.createObjectURL(blob);
-
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "memory_test.csv";
-  a.click();
-};
-
-
-/* ------------------------------
-   DOWNLOAD JSON
------------------------------- */
-document.getElementById("downloadJSON").onclick = () => {
-  let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  let url = URL.createObjectURL(blob);
-
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "memory_test.json";
-  a.click();
-};
-
-
-/* ------------------------------
-   RESTART
------------------------------- */
-document.getElementById("restartBtn").onclick = () => location.reload();
+  document.getElementById("restartBtn").onclick = () => {
+    location.reload();
+  };
+}

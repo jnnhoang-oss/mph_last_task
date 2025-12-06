@@ -1,87 +1,171 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>nmph_mtest_TI — Surprise Memory Test</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
+// -------------------------------------------------------
+// Working Surprise Memory Test Script
+// -------------------------------------------------------
 
-<body>
-  <main class="container">
-    <div class="toolbar">
-      <div>
-        <h1>nmph_mtest_TI — Surprise Memory Test</h1>
-        <div class="small">Keyboard: <strong>F</strong> = New, <strong>J</strong> = Old, then <strong>1–5</strong> for confidence</div>
-      </div>
-      <div class="status" id="progressIndicator">Ready</div>
-    </div>
+// Screens
+const idScreen = document.getElementById("idScreen");
+const imageScreen = document.getElementById("imageScreen");
+const choiceScreen = document.getElementById("choiceScreen");
+const confidenceScreen = document.getElementById("confidenceScreen");
+const endScreen = document.getElementById("endScreen");
 
-    <!-- ID / Consent / Initial Question -->
-    <section id="idScreen" class="screen active card">
-      <label for="subid">Participant ID</label>
-      <input id="subid" type="text" placeholder="e.g., p101" />
+// UI elements
+const imgStage = document.getElementById("imgStage");
+const progressIndicator = document.getElementById("progressIndicator");
+const startBtn = document.getElementById("startBtn");
+const downloadCSV = document.getElementById("downloadCSV");
+const downloadJSON = document.getElementById("downloadJSON");
+const restartBtn = document.getElementById("restartBtn");
 
-      <p class="muted">Q: <em>Have you anticipated that there will be a memory test today about all of the images that you saw yesterday?</em></p>
+// -------------------------------------------------------
+// Example stimuli (replace with your actual filenames)
+// -------------------------------------------------------
+const stimuli = [
+  { filename: "img1.jpg", old: 1 },
+  { filename: "img2.jpg", old: 0 },
+];
 
-      <div class="choice-row">
-        <button id="antYes">Yes</button>
-        <button id="antNo">No</button>
-      </div>
+// -------------------------------------------------------
+let currentIndex = 0;
+let trials = [];
+let currentImage = null;
+let oldNewResponse = null;
 
-      <p class="muted small">(Expected answer: <strong>No</strong>)</p>
+// -------------------------------------------------------
+// Screen switcher
+// -------------------------------------------------------
+function show(screen) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  screen.classList.add("active");
+}
 
-      <button id="startBtn">Start Test</button>
+// -------------------------------------------------------
+// Load image HTML
+// -------------------------------------------------------
+function loadImage(file) {
+  return `<img src="images/${file}" class="stim-img"/>`;
+}
 
-      <p class="muted instructions">
-        You will see an image for 2 seconds. After it disappears, press <strong>F</strong> if the image is NEW, or <strong>J</strong> if it is OLD.  
-        Then you’ll rate your confidence (1–5).  
-        The response screens remain until you answer.
-      </p>
-    </section>
+// -------------------------------------------------------
+// START TEST
+// -------------------------------------------------------
+startBtn.addEventListener("click", () => {
+  const id = document.getElementById("subid").value.trim();
+  if (id === "") {
+    alert("Please enter participant ID.");
+    return;
+  }
+  currentIndex = 0;
+  trials = [];
+  beginTrial();
+});
 
-    <!-- Image display -->
-    <section id="imageScreen" class="screen card">
-      <div class="img-stage" id="imgStage"><div class="muted">Image will appear</div></div>
-      <div class="small muted">Image display: 2.0 seconds</div>
-    </section>
+// -------------------------------------------------------
+// BEGIN TRIAL
+// -------------------------------------------------------
+function beginTrial() {
+  if (currentIndex >= stimuli.length) {
+    finishTest();
+    return;
+  }
 
-    <!-- Choice screen -->
-    <section id="choiceScreen" class="screen card">
-      <div class="muted">Was the image NEW or OLD?</div>
-      <div class="choice-row">
-        <div class="choice"><strong>F</strong> — Definitely NEW</div>
-        <div class="choice"><strong>J</strong> — Definitely OLD</div>
-      </div>
-    </section>
+  progressIndicator.textContent = `Trial ${currentIndex + 1} / ${stimuli.length}`;
 
-    <!-- Confidence -->
-    <section id="confidenceScreen" class="screen card">
-      <div class="muted">How confident are you? (1 = not confident, 5 = very confident)</div>
-      <div class="choice-row">
-        <div class="choice">Press <strong>1</strong></div>
-        <div class="choice">Press <strong>2</strong></div>
-        <div class="choice">Press <strong>3</strong></div>
-        <div class="choice">Press <strong>4</strong></div>
-        <div class="choice">Press <strong>5</strong></div>
-      </div>
-    </section>
+  currentImage = stimuli[currentIndex];
+  oldNewResponse = null;
 
-    <!-- End screen -->
-    <section id="endScreen" class="screen card">
-      <h2>Test Complete</h2>
-      <p class="muted">Your responses have been recorded.</p>
+  imgStage.innerHTML = loadImage(currentImage.filename);
+  show(imageScreen);
 
-      <div class="choice-row">
-        <button id="downloadCSV">Download CSV</button>
-        <button id="downloadJSON">Download JSON</button>
-        <button id="restartBtn">Restart</button>
-      </div>
+  // After 2 seconds, move to choice screen
+  setTimeout(() => {
+    imgStage.innerHTML = "";
+    show(choiceScreen);
+  }, 2000);
+}
 
-      <pre class="debug" id="debugLog"></pre>
-    </section>
-  </main>
+// -------------------------------------------------------
+// KEYBOARD LISTENERS
+// -------------------------------------------------------
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
 
-  <script src="script.js"></script>
-</body>
-</html>
+  // --- NEW vs OLD ---
+  if (choiceScreen.classList.contains("active")) {
+    if (key === "f") {
+      oldNewResponse = "F";
+      show(confidenceScreen);
+    }
+    if (key === "j") {
+      oldNewResponse = "J";
+      show(confidenceScreen);
+    }
+    return;
+  }
+
+  // --- Confidence 1–5 ---
+  if (confidenceScreen.classList.contains("active")) {
+    if (["1", "2", "3", "4", "5"].includes(key)) {
+      const confidence = Number(key);
+      storeTrial(confidence);
+    }
+  }
+});
+
+// -------------------------------------------------------
+// STORE TRIAL
+// -------------------------------------------------------
+function storeTrial(conf) {
+  trials.push({
+    participant: document.getElementById("subid").value.trim(),
+    filename: currentImage.filename,
+    actual_old: currentImage.old,
+    response_oldnew: oldNewResponse,
+    confidence: conf
+  });
+
+  currentIndex++;
+  beginTrial();
+}
+
+// -------------------------------------------------------
+// FINISH TEST
+// -------------------------------------------------------
+function finishTest() {
+  show(endScreen);
+  progressIndicator.textContent = "Complete";
+}
+
+// -------------------------------------------------------
+// DOWNLOAD CSV
+// -------------------------------------------------------
+downloadCSV.addEventListener("click", () => {
+  let csv = "participant,filename,actual_old,response_oldnew,confidence\n";
+  trials.forEach(t => {
+    csv += `${t.participant},${t.filename},${t.actual_old},${t.response_oldnew},${t.confidence}\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "memory_test.csv";
+  a.click();
+});
+
+// -------------------------------------------------------
+// DOWNLOAD JSON
+// -------------------------------------------------------
+downloadJSON.addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(trials, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "memory_test.json";
+  a.click();
+});
+
+// -------------------------------------------------------
+// RESTART
+// -------------------------------------------------------
+restartBtn.addEventListener("click", () => {
+  location.reload();
+});

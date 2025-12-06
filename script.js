@@ -1,5 +1,5 @@
 // ------------------------
-// Complete Memory Task Script with Pre-test Questions, ITI, and Feedback
+// Memory Task Script - Keyboard Only
 // ------------------------
 
 // Folders and images
@@ -9,19 +9,15 @@ const newImageFolder = "newpic/";
 const newImages = ["alligator.jpg", "angelfish.jpg","ant.jpg","armadillo.jpg","assassinbug.jpg","baboon.jpg","badger.jpg","baldeagle.jpg","bat.jpg","beaver.jpg","bluejay.jpg","boar.jpg","bull.jpg","butterfly.jpg","cardinal.jpg","caribou.jpg","cat.jpg","caterpillarpeacockmoth.jpg","cedarwaxwing.jpg","chameleon.jpg","cheetah.jpg","chimpanzee.jpg","clownfish.jpg","cobra.jpg","cockroach.jpg","cougar.jpg","cow.jpg","crab.jpg","crow.jpg","dolphin.jpg","dragonfly.jpg","dramaderry.jpg","duck.jpg","eagle.jpg","fennec.jpg","flamingo.jpg","gecko.jpg","gorilla.jpg","hummingbird.jpg","mahimahi.jpg","mink.jpg","mole.jpg","quail.jpg","racoon.jpg","rhino.jpg","seal.jpg","snapper.jpg","zebra.jpg"];
 
 // Build and shuffle trials
-let trials = [];
-oldImages.forEach(img => trials.push({img: oldImageFolder+img, old:1}));
-newImages.forEach(img => trials.push({img: newImageFolder+img, old:0}));
+let trials=[];
+oldImages.forEach(img=>trials.push({img:oldImageFolder+img,old:1}));
+newImages.forEach(img=>trials.push({img:newImageFolder+img,old:0}));
 function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}}shuffle(trials);
 
 // ------------------------
 // Variables
 // ------------------------
-let trialIndex=0;
-let preTestQ1=null;
-let preTestQ2=null;
-let responses=[];
-let itiDuration=0;
+let trialIndex=0,preTestQ1=null,preTestQ2=null,responses=[],itiDuration=0;
 
 // ------------------------
 // DOM Elements
@@ -32,42 +28,37 @@ const imgStage=document.getElementById('imgStage');
 // ------------------------
 // Show screen
 // ------------------------
-function showScreen(screenName){for(let key in screens){screens[key].classList.remove('active');}screens[screenName].classList.add('active');}
+function showScreen(name){for(let k in screens)screens[k].classList.remove('active');screens[name].classList.add('active');}
 
 // ------------------------
-// ID Screen
+// Keyboard Navigation
 // ------------------------
-document.getElementById('subid').addEventListener('keydown',e=>{if(e.key==='Enter') showScreen('instructions');});
+document.addEventListener('keydown',e=>{
+  // ID Screen
+  if(screens.id.classList.contains('active') && e.key==='Enter'){showScreen('instructions');}
 
-// ------------------------
-// Instructions
-// ------------------------
-document.addEventListener('keydown', e => {
-  if(e.key==='Enter'){
-    if(screens.instructions.classList.contains('active')) showScreen('memoryInstructions');
-    else if(screens.memoryInstructions.classList.contains('active')) showScreen('question1');
-    else if(screens.ready.classList.contains('active')) runTrial();
-  }
+  // Instructions
+  else if(screens.instructions.classList.contains('active') && e.key==='Enter'){showScreen('memoryInstructions');}
+  else if(screens.memoryInstructions.classList.contains('active') && e.key==='Enter'){showScreen('question1');}
+  else if(screens.ready.classList.contains('active') && e.key==='Enter'){runTrial();}
+
+  // Pre-test Questions Q1
+  else if(screens.question1.classList.contains('active') && ['1','2','3','4','5'].includes(e.key)){preTestQ1=e.key; showScreen('question2');}
+  // Pre-test Questions Q2
+  else if(screens.question2.classList.contains('active') && ['1','2','3','4','5'].includes(e.key)){preTestQ2=e.key; showScreen('ready');}
 });
-
-// ------------------------
-// Pre-test Questions
-// ------------------------
-document.getElementById('q1Scale').addEventListener('click', e => {if(e.target.classList.contains('rating-option')){preTestQ1=e.target.dataset.value; showScreen('question2');}});
-document.getElementById('q2Scale').addEventListener('click', e => {if(e.target.classList.contains('rating-option')){preTestQ2=e.target.dataset.value; showScreen('ready');}});
 
 // ------------------------
 // Memory Task Functions
 // ------------------------
-function randomITI(){return 1000 + Math.random()*500;}
-
+function randomITI(){return 1000+Math.random()*500;}
 function runTrial(){
   if(trialIndex>=trials.length) return endExperiment();
   itiDuration=randomITI();
   imgStage.textContent='+';
   imgStage.style.backgroundImage='';
   showScreen('image');
-  setTimeout(showImage, itiDuration);
+  setTimeout(showImage,itiDuration);
 }
 
 function showImage(){
@@ -80,7 +71,7 @@ function showImage(){
 }
 
 function startChoice(currentTrial){
-  document.onkeydown = e => {
+  document.onkeydown=e=>{
     if(['f','j'].includes(e.key.toLowerCase())){
       currentTrial.choice=(e.key.toLowerCase()==='f')?'New':'Old';
       showScreen('confidence');
@@ -90,7 +81,7 @@ function startChoice(currentTrial){
 }
 
 function startConfidence(currentTrial){
-  document.onkeydown = e => {
+  document.onkeydown=e=>{
     if(['1','2','3','4','5'].includes(e.key)){
       currentTrial.confidence=e.key;
       currentTrial.preTestQ1=preTestQ1;
@@ -98,7 +89,7 @@ function startConfidence(currentTrial){
       currentTrial.iti=itiDuration;
       responses.push(currentTrial);
       showScreen('feedback');
-      document.getElementById('feedbackText').textContent = currentTrial.choice===((currentTrial.old===1)?'Old':'New')?'Correct!':'Incorrect';
+      document.getElementById('feedbackText').textContent=currentTrial.choice===((currentTrial.old===1)?'Old':'New')?'Correct!':'Incorrect';
       trialIndex++;
       setTimeout(runTrial,800);
     }

@@ -1,166 +1,165 @@
-// -------------------------------------------------------
-// Surprise Memory Test Script (with ITI recording)
-// -------------------------------------------------------
-
-const idScreen = document.getElementById("idScreen");
-const imageScreen = document.getElementById("imageScreen");
-const choiceScreen = document.getElementById("choiceScreen");
-const confidenceScreen = document.getElementById("confidenceScreen");
-const endScreen = document.getElementById("endScreen");
-
-const imgStage = document.getElementById("imgStage");
-const progressIndicator = document.getElementById("progressIndicator");
-const startBtn = document.getElementById("startBtn");
-const downloadCSV = document.getElementById("downloadCSV");
-const downloadJSON = document.getElementById("downloadJSON");
-const restartBtn = document.getElementById("restartBtn");
-
-// -----------------------------------------------
-// Example stimuli — replace with your actual list
-// -----------------------------------------------
-const stimuli = [
-  { filename: "img1.jpg", old: 1 },
-  { filename: "img2.jpg", old: 0 },
+/* ------------------------------
+   TRIAL LIST
+   (change this to your real images)
+------------------------------ */
+let trials = [
+  {img:"stim1.jpg", old:0},
+  {img:"stim2.jpg", old:1},
+  {img:"stim3.jpg", old:0},
 ];
 
-let currentIndex = 0;
-let trials = [];
-let currentImage = null;
-let oldNewResponse = null;
-let itiDuration = null;
+let idx = 0;
+let anticipation = null;
+let data = [];
 
-// -------------------------------------------------------
-// Utility: show/hide screens
-// -------------------------------------------------------
-function show(screen) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  screen.classList.add("active");
+
+/* ------------------------------
+   UTILITY: random ITI (1–1.5 s)
+------------------------------ */
+function randomITI() {
+  return 1000 + Math.random()*500;
 }
 
-// -------------------------------------------------------
-function loadImage(file) {
-  return `<img src="images/${file}" class="stim-img"/>`;
+
+/* ------------------------------
+   SCREEN CONTROL
+------------------------------ */
+function show(id) {
+  document.querySelectorAll(".screen")
+    .forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-// -------------------------------------------------------
-// Start test
-// -------------------------------------------------------
-startBtn.addEventListener("click", () => {
-  const id = document.getElementById("subid").value.trim();
-  if (id === "") {
-    alert("Please enter participant ID.");
+
+/* ------------------------------
+   ANTICIPATION QUESTION
+------------------------------ */
+document.getElementById("antYes").onclick = () => anticipation = "Yes";
+document.getElementById("antNo").onclick = () => anticipation = "No";
+
+
+/* ------------------------------
+   START BUTTON
+------------------------------ */
+document.getElementById("startBtn").onclick = () => {
+  if (!document.getElementById("subid").value.trim()) {
+    alert("Please enter Participant ID.");
+    return;
+  }
+  nextTrial();
+};
+
+
+/* ------------------------------
+   TRIAL SEQUENCE
+------------------------------ */
+function nextTrial() {
+  if (idx >= trials.length) {
+    show("endScreen");
+    document.getElementById("debugLog").textContent =
+      JSON.stringify(data, null, 2);
     return;
   }
 
-  currentIndex = 0;
-  trials = [];
-  beginTrial();
-});
+  let t = trials[idx];
+  let holder = document.getElementById("imgHolder");
 
-// -------------------------------------------------------
-// Begin trial
-// -------------------------------------------------------
-function beginTrial() {
-  if (currentIndex >= stimuli.length) {
-    finishTest();
-    return;
-  }
+  holder.innerHTML = `<img src="${t.img}" style="max-width:100%;max-height:100%;">`;
+  show("imageScreen");
 
-  // random ITI between 1.0 and 1.5 sec
-  itiDuration = 1000 + Math.random() * 500;
-
-  progressIndicator.textContent = `Trial ${currentIndex + 1} / ${stimuli.length}`;
-
-  currentImage = stimuli[currentIndex];
-  oldNewResponse = null;
-
-  imgStage.innerHTML = loadImage(currentImage.filename);
-  show(imageScreen);
-
-  // Show image for 2 sec → then NEW/OLD prompt
+  // show image for 2 seconds
   setTimeout(() => {
-    imgStage.innerHTML = "";
-    show(choiceScreen);
+    show("choiceScreen");
+    t.choiceStart = performance.now();
   }, 2000);
 }
 
-// -------------------------------------------------------
-// Key responses
-// -------------------------------------------------------
-document.addEventListener("keydown", (e) => {
-  const key = e.key.toLowerCase();
 
-  // NEW / OLD
-  if (choiceScreen.classList.contains("active")) {
-    if (key === "f") {
-      oldNewResponse = "F";
-      show(confidenceScreen);
-    }
-    if (key === "j") {
-      oldNewResponse = "J";
-      show(confidenceScreen);
-    }
-    return;
-  }
+/* ------------------------------
+   NEW/OLD RESPONSE
+------------------------------ */
+document.getElementById("respF").onclick = () => recordChoice("F");
+document.getElementById("respJ").onclick = () => recordChoice("J");
 
-  // Confidence 1–5
-  if (confidenceScreen.classList.contains("active")) {
-    if (["1", "2", "3", "4", "5"].includes(key)) {
-      storeTrial(Number(key));
-    }
-  }
+function recordChoice(resp) {
+  let t = trials[idx];
+  t.response = resp;
+  t.choiceRT = performance.now() - t.choiceStart;
+  show("confidenceScreen");
+}
+
+
+/* ------------------------------
+   CONFIDENCE RESPONSE
+------------------------------ */
+document.querySelectorAll(".confBtn").forEach(btn => {
+  btn.onclick = () => {
+    let t = trials[idx];
+    t.confidence = btn.dataset.value;
+
+    // ITI
+    let itiValue = randomITI();
+
+    // Store trial data
+    data.push({
+      subid: document.getElementById("subid").value,
+      anticipation: anticipation,
+      img: t.img,
+      old: t.old,
+      response: t.response,
+      confidence: t.confidence,
+      choiceRT: t.choiceRT.toFixed(1),
+      iti: itiValue.toFixed(1)
+    });
+
+    // ITI screen (fixation)
+    show("imageScreen");
+    document.getElementById("imgHolder").innerHTML =
+      "<div class='muted' style='font-size:40px;'>+</div>";
+
+    setTimeout(() => {
+      idx++;
+      nextTrial();
+    }, itiValue);
+  };
 });
 
-// -------------------------------------------------------
-// Store trial + ITI pause
-// -------------------------------------------------------
-function storeTrial(conf) {
-  trials.push({
-    participant: document.getElementById("subid").value.trim(),
-    filename: currentImage.filename,
-    actual_old: currentImage.old,
-    response_oldnew: oldNewResponse,
-    confidence: conf,
-    iti_ms: Math.round(itiDuration)                 // <-- SAVE ITI HERE
+
+/* ------------------------------
+   DOWNLOAD CSV
+------------------------------ */
+document.getElementById("downloadCSV").onclick = () => {
+  let rows = ["subid,anticipation,img,old,response,confidence,choiceRT,iti"];
+
+  data.forEach(r => {
+    rows.push(`${r.subid},${r.anticipation},${r.img},${r.old},${r.response},${r.confidence},${r.choiceRT},${r.iti}`);
   });
 
-  // Wait for ITI then show next trial
-  setTimeout(() => {
-    currentIndex++;
-    beginTrial();
-  }, itiDuration);
-}
+  let blob = new Blob([rows.join("\n")], {type:"text/csv"});
+  let url = URL.createObjectURL(blob);
 
-// -------------------------------------------------------
-function finishTest() {
-  show(endScreen);
-  progressIndicator.textContent = "Complete";
-}
-
-// -------------------------------------------------------
-downloadCSV.addEventListener("click", () => {
-  let csv = "participant,filename,actual_old,response_oldnew,confidence,iti_ms\n";
-  trials.forEach(t => {
-    csv += `${t.participant},${t.filename},${t.actual_old},${t.response_oldnew},${t.confidence},${t.iti_ms}\n`;
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href = url;
   a.download = "memory_test.csv";
   a.click();
-});
+};
 
-// -------------------------------------------------------
-downloadJSON.addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(trials, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+
+/* ------------------------------
+   DOWNLOAD JSON
+------------------------------ */
+document.getElementById("downloadJSON").onclick = () => {
+  let blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
   a.download = "memory_test.json";
   a.click();
-});
+};
 
-// -------------------------------------------------------
-restartBtn.addEventListener("click", () => {
-  location.reload();
-});
+
+/* ------------------------------
+   RESTART
+------------------------------ */
+document.getElementById("restartBtn").onclick = () => location.reload();

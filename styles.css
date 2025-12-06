@@ -1,137 +1,86 @@
-/* MATLAB-style UI color palette */
-:root {
-  --bg: #ececec;
-  --panel: #f2f2f2;
-  --border: #b4b4b4;
-  --text: #1a1a1a;
-  --muted: #555;
-  --blue: #0072bd;   /* MATLAB default blue */
-  --button-bg: #e6e6e6;
-  --button-hover: #d4d4d4;
-}
-
+/* General Page Style */
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: var(--bg);
   margin: 0;
-  padding: 0;
-  color: var(--text);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #dcdcdc;
 }
 
-.container {
-  max-width: 760px;
-  margin: 20px auto;
-  padding: 10px;
+/* Header */
+header {
+  background:#0072bd;
+  padding:15px;
+  color:white;
+  text-align:left;
+  font-size:20px;
+  font-weight:bold;
 }
 
-h1, h2 {
-  font-weight: 600;
-  margin-top: 0;
+/* Main Container */
+main {
+  max-width: 700px;
+  margin: 25px auto;
+  background: #eeeeee;
+  padding: 25px;
+  border: 1px solid #b3b3b3;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.small {
-  font-size: 0.9em;
+/* Visibility Control */
+.screen {
+  display:none;
+}
+.active {
+  display:block;
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px;
+  background: #0072bd;
+  color:white;
+  border:none;
+  border-radius: 4px;
+  cursor:pointer;
+}
+button:hover {
+  background:#005c97;
+}
+
+/* Text Input */
+.textInput {
+  padding:8px;
+  width:200px;
+  margin:10px 0;
+}
+
+/* Image Holder */
+.img-holder {
+  width:100%;
+  height:350px;
+  border:2px solid #b3b3b3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:white;
+  margin:20px 0;
+}
+
+/* Layout Helpers */
+.choice-row {
+  display:flex;
+  gap:10px;
+  margin:15px 0;
 }
 
 .muted {
-  color: var(--muted);
+  color:#555;
 }
 
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 20px;
-
-  /* MATLAB-like panel shadow */
-  box-shadow: 2px 2px 3px #d0d0d0;
-}
-
-/* -------------------------
-   Toolbar
-------------------------- */
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 20px;
-}
-
-.status {
-  font-size: 0.9em;
-  color: var(--blue);
-  font-weight: bold;
-}
-
-/* -------------------------
-   Screens
-------------------------- */
-.screen {
-  display: none;
-}
-.screen.active {
-  display: block;
-}
-
-/* -------------------------
-   Image stage
-------------------------- */
-.img-stage {
-  height: 260px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px dashed var(--border);
-  background: #fafafa;
-}
-.stim-img {
-  max-height: 250px;
-  max-width: 100%;
-}
-
-/* -------------------------
-   Buttons (MATLAB-like)
-------------------------- */
-button {
-  background: var(--button-bg);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 6px 14px;
-  font-size: 1em;
-  cursor: pointer;
-  box-shadow: 1px 1px 2px #ccc;
-}
-button:hover {
-  background: var(--button-hover);
-}
-
-/* -------------------------
-   Layout rows
-------------------------- */
-.choice-row {
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 15px;
-}
-.choice {
-  padding: 8px;
-  text-align: center;
-  border: 1px solid var(--border);
-  background: #ffffff;
-  border-radius: 4px;
-  width: 120px;
-}
-
-/* -------------------------
-   Debug
-------------------------- */
 .debug {
-  font-size: 0.8em;
-  max-height: 240px;
-  overflow-y: auto;
-  background: #fff;
-  padding: 10px;
-  border: 1px solid var(--border);
+  font-size:12px;
+  margin-top:20px;
+  white-space:pre-wrap;
 }

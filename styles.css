@@ -1,6 +1,6 @@
 :root {
-  accent: #a9a9a9;
-  font: Arial, sans-serif;
+  --accent: #a9a9a9;
+  --font: Arial, sans-serif;
 }
 
 body, html {
@@ -63,16 +63,16 @@ ul {
 
 .choice, .rating-option {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 10px 15px;
   margin: 5px;
-  cursor: pointer;
+  cursor: default;
   font-weight: bold;
-  background-color: #e6e6e6;
-  border-radius: 4px;
+  background: none;
+  border: none;
 }
 
 .choice:hover, .rating-option:hover {
-  background-color: #d4d4d4;
+  background: none;
 }
 
 .rating-labels {
@@ -82,5 +82,5 @@ ul {
 }
 
 .toolbar {
-  display: none; /* remove top toolbar for centered look */
+  display: none; 
 }

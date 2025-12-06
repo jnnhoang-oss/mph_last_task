@@ -3,76 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
+  <title>Memory Test</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+  <main class="container">
+    <!-- Anticipation Screen -->
+    <section id="anticipationScreen" class="screen active">
+      <h1>Memory Test</h1>
+      <p>Have you anticipated that there will be a memory test today about the images you saw yesterday?</p>
+      <div class="btn-row">
+        <button id="antYes">Yes</button>
+        <button id="antNo">No</button>
+      </div>
+      <button id="startBtn" class="start">Start Test</button>
+    </section>
 
+    <!-- Image Screen -->
+    <section id="imageScreen" class="screen">
+      <div id="imgStage" class="img-stage">Image will appear</div>
+    </section>
 
-<main>
+    <!-- Response Screen -->
+    <section id="responseScreen" class="screen">
+      <h2>Was the image NEW or OLD?</h2>
+      <p>Press <strong>F</strong> for NEW or <strong>J</strong> for OLD</p>
+    </section>
 
-  <!-- Participant Info + Anticipation Question -->
-  <section id="idScreen" class="screen active">
-    <h2>Participant Information</h2>
+    <!-- Confidence Screen -->
+    <section id="confidenceScreen" class="screen">
+      <h2>Confidence</h2>
+      <p>Rate confidence (1–5)</p>
+    </section>
 
-    <label>Participant ID</label><br>
-    <input id="subid" type="text" class="textInput"><br>
+    <!-- End Screen -->
+    <section id="endScreen" class="screen">
+      <h2>Test Complete</h2>
+      <button id="downloadCSV">Download CSV</button>
+      <button id="restartBtn">Restart</button>
+    </section>
+  </main>
 
-    <p>Did you anticipate that there would be a memory test today based on the images from yesterday?</p>
-
-    <div class="choice-row">
-      <button id="antYes">Yes</button>
-      <button id="antNo">No</button>
-    </div>
-
-    <button id="startBtn">Begin Test</button>
-  </section>
-
-
-  <!-- Image Screen -->
-  <section id="imageScreen" class="screen">
-    <h2>Image</h2>
-    <div class="img-holder" id="imgHolder">Image will appear here</div>
-  </section>
-
-
-  <!-- NEW/OLD Screen -->
-  <section id="choiceScreen" class="screen">
-    <h2>Was the image NEW or OLD?</h2>
-    <div class="choice-row">
-      <button id="respF">F — NEW</button>
-      <button id="respJ">J — OLD</button>
-    </div>
-  </section>
-
-
-  <!-- Confidence Screen -->
-  <section id="confidenceScreen" class="screen">
-    <h2>Confidence (1–5)</h2>
-    <div class="choice-row">
-      <button class="confBtn" data-value="1">1</button>
-      <button class="confBtn" data-value="2">2</button>
-      <button class="confBtn" data-value="3">3</button>
-      <button class="confBtn" data-value="4">4</button>
-      <button class="confBtn" data-value="5">5</button>
-    </div>
-  </section>
-
-
-  <!-- End Screen -->
-  <section id="endScreen" class="screen">
-    <h2>Test Complete</h2>
-
-    <button id="downloadCSV">Download CSV</button>
-    <button id="downloadJSON">Download JSON</button>
-    <button id="restartBtn">Restart</button>
-
-    <pre id="debugLog" class="debug"></pre>
-  </section>
-
-</main>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,126 +1,137 @@
+/* MATLAB-style UI color palette */
 :root {
-  --bg: #0f1724;
-  --card: #0b1220;
-  --accent: #7dd3fc;
-  --muted: #94a3b8;
-  --white: #e6eef8;
-  --glass: rgba(255,255,255,0.03);
+  --bg: #ececec;
+  --panel: #f2f2f2;
+  --border: #b4b4b4;
+  --text: #1a1a1a;
+  --muted: #555;
+  --blue: #0072bd;   /* MATLAB default blue */
+  --button-bg: #e6e6e6;
+  --button-hover: #d4d4d4;
 }
 
-html,body{
-  height:100%;
-  margin:0;
-  font-family: Inter, system-ui, sans-serif;
-  background: linear-gradient(180deg,#051225 0%, #08182b 100%);
-  color:var(--white);
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  color: var(--text);
 }
 
-/* Layout container */
-.container{
-  max-width:900px;
-  margin:36px auto;
-  padding:24px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius:12px;
-  box-shadow:0 6px 24px rgba(0,0,0,0.6);
-  min-height:70vh;
-  display:flex;
-  flex-direction:column;
-  gap:18px;
+.container {
+  max-width: 760px;
+  margin: 20px auto;
+  padding: 10px;
 }
 
-.toolbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+h1, h2 {
+  font-weight: 600;
+  margin-top: 0;
 }
 
-.screen{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
+.small {
+  font-size: 0.9em;
 }
 
-.screen.active{ display:flex; }
-
-.card{
-  background:var(--glass);
-  padding:18px;
-  border-radius:10px;
-  width:100%;
+.muted {
+  color: var(--muted);
 }
 
-label{
-  display:block;
-  text-align:left;
-  color:var(--muted);
-  margin-bottom:5px;
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+
+  /* MATLAB-like panel shadow */
+  box-shadow: 2px 2px 3px #d0d0d0;
 }
 
-input[type="text"]{
-  width:100%;
-  padding:10px;
-  background:transparent;
-  color:var(--white);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px;
+/* -------------------------
+   Toolbar
+------------------------- */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
-button{
-  padding:10px 16px;
-  border:0;
-  border-radius:8px;
-  background:var(--accent);
-  color:#00263a;
-  font-weight:600;
-  cursor:pointer;
+.status {
+  font-size: 0.9em;
+  color: var(--blue);
+  font-weight: bold;
 }
 
-.choice-row{
-  display:flex;
-  gap:18px;
-  justify-content:center;
-  flex-wrap:wrap;
-  margin-top:8px;
+/* -------------------------
+   Screens
+------------------------- */
+.screen {
+  display: none;
+}
+.screen.active {
+  display: block;
 }
 
-.choice{
-  background:rgba(255,255,255,0.05);
-  padding:12px 18px;
-  border-radius:10px;
-  min-width:160px;
+/* -------------------------
+   Image stage
+------------------------- */
+.img-stage {
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed var(--border);
+  background: #fafafa;
+}
+.stim-img {
+  max-height: 250px;
+  max-width: 100%;
 }
 
-.muted{ color:var(--muted); }
-.small{ font-size:13px; }
-
-.img-stage{
-  width:640px;
-  max-width:95%;
-  height:380px;
-  background:linear-gradient(180deg,#071428,#022236);
-  border-radius:8px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  overflow:hidden;
+/* -------------------------
+   Buttons (MATLAB-like)
+------------------------- */
+button {
+  background: var(--button-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 6px 14px;
+  font-size: 1em;
+  cursor: pointer;
+  box-shadow: 1px 1px 2px #ccc;
+}
+button:hover {
+  background: var(--button-hover);
 }
 
-.img-stage img{
-  max-width:100%;
-  max-height:100%;
+/* -------------------------
+   Layout rows
+------------------------- */
+.choice-row {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 15px;
+}
+.choice {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 4px;
+  width: 120px;
 }
 
-footer{
-  text-align:center;
-  margin-top:12px;
-  color:var(--muted);
-}
-
-.debug{
-  font-size:12px;
-  color:var(--muted);
-  max-height:200px;
-  overflow:auto;
+/* -------------------------
+   Debug
+------------------------- */
+.debug {
+  font-size: 0.8em;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid var(--border);
 }

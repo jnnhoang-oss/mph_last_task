@@ -19,40 +19,8 @@
     <section id="idScreen" class="screen active card">
       <h2>Welcome</h2>
       <label for="subid">Participant ID</label>
-      <input id="subid" type="text" placeholder="e.g., p101" />
+      <input id="subid" type="text" placeholder="e.g., 101" />
       <p class="muted small">Press <strong>Enter</strong> to continue</p>
-    </section>
-
-    <!-- Instructions Screen -->
-    <section id="instructionsScreen" class="screen card">
-      <h2>Important Instructions</h2>
-      <div class="instructions">
-        <p><strong>Please read carefully:</strong></p>
-        <ul style="text-align: left; margin-left: 20px; margin-top: 12px;">
-          <li><strong>Full engagement required:</strong> Please stay fully engaged and respond as accurately and quickly as possible.</li>
-          <li><strong>Do not leave:</strong> This task will take approximately 30–40 minutes. Please ensure you can complete it in one sitting. Do not leave or pause during the experiment. Otherwise, responses may not be recorded properly.</li>
-          <li><strong>Monitored behavior:</strong> Please note that your responses will be monitored throughout the test. Any irregular or abnormal behavior may affect your credit.</li>
-          <li><strong>Credit affected:</strong> Any abnormal behavior will affect your credit.</li>
-        </ul>
-        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the task instructions.</p>
-      </div>
-    </section>
-
-    <!-- Memory Test Instructions Screen (NEW) -->
-    <section id="memoryInstructionsScreen" class="screen card">
-      <h2>Memory Test Instructions</h2>
-      <div class="instructions">
-        <p>In this task, you will be presented with some images you have seen previously in your arrangement tasks and some new images you have never seen before.</p>
-        <p style="margin-top: 16px;">Each image will be shown for <strong>2 seconds only</strong>.</p>
-        <p style="margin-top: 16px;">If you think you have seen the image before, select <strong>"old"</strong>. If you have not seen it before, select <strong>"new"</strong>.</p>        
-        <p style="margin-top: 16px;">Then, report your confidence in that choice on a scale from <strong>1 to 5</strong>, where:</p>
-        <ul style="text-align: left; margin: 12px 0 12px 40px; line-height: 1.8;">
-          <li><strong>1</strong> = Not confident at all</li>
-          <li><strong>5</strong> = Very confident</li>
-        </ul>
-        <p style="margin-top: 16px;">You will receive feedback after each trial. This feedback is based <strong>only on your new/old choice</strong>, not on your confidence level.</p>
-        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the questions.</p>
-      </div>
     </section>
 
     <!-- Questions Screen - Question 1 -->
@@ -96,6 +64,36 @@
       </div>
       <p class="muted small">Press 1-5 on your keyboard to answer</p>
     </section>
+    
+    <!-- Instructions Screen -->
+    <section id="instructionsScreen" class="screen card">
+      <h2>Important Instructions</h2>
+      <div class="instructions">
+        <p><strong>Please read carefully:</strong></p>
+        <ul style="text-align: left; margin-left: 20px; margin-top: 12px;">
+          <li><strong>Full engagement required:</strong> Please stay fully engaged and respond as accurately and quickly as possible.</li>
+          <li><strong>Do not leave:</strong> This task will take approximately 30–40 minutes. Please ensure you can complete it in one sitting. Do not leave or pause during the experiment. Otherwise, responses may not be recorded properly.</li>
+          <li><strong>Monitored behavior:</strong> Please note that your responses will be monitored throughout the test. Any irregular or abnormal behavior may affect your credit.</li>
+          <li><strong>Credit affected:</strong> Any abnormal behavior will affect your credit.</li>
+        </ul>
+        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the task instructions.</p>
+      </div>
+    </section>
+
+    <!-- Memory Test Instructions Screen (NEW) -->
+    <section id="memoryInstructionsScreen" class="screen card">
+      <h2>Memory Test Instructions</h2>
+      <div class="instructions">
+        <p>In this task, you will be presented with some images you have seen previously in your arrangement tasks and some new images you have never seen before.</p>
+        <p style="margin-top: 16px;">Each image will be shown for <strong>2 seconds only</strong>.</p>
+        <p style="margin-top: 16px;">If you think you have seen the image before, select <strong>"old"</strong>. If you have not seen it before, select <strong>"new"</strong>.</p>        
+        <p style="margin-top: 16px;">Then, report your confidence in that choice on a scale from <strong>1 to 5</strong>, where:</p>
+          <p><strong>1</strong> = Not confident at all</p>
+          <p><strong>5</strong> = Very confident</p>
+        <p style="margin-top: 16px;">You will receive feedback after each trial. This feedback is based <strong>only on your new/old choice</strong>, not on your confidence level.</p>
+        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the questions.</p>
+      </div>
+    </section>
 
     <!-- Ready to Start Screen -->
     <section id="readyScreen" class="screen card">
@@ -127,7 +125,7 @@
         <div class="choice" style="min-width: 100px;"> <strong>4</strong></div>
         <div class="choice" style="min-width: 100px;"> <strong>5</strong></div>
       </div>
-      <div class="rating-labels" style="margin-top: 16px;">
+      <div class="rating-labels" style="margin-top: 16px; justify-content: center;">
         <span>Press 1-5 on your keyboard to answer</span>
       </div>
     </section>

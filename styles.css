@@ -1,43 +1,31 @@
 :root {
-  --accent: #444;
   --font: Arial, sans-serif;
 }
 
-html, body {
+body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  background: #f4f4f4;
   font-family: var(--font);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  background-color: #f9f9f9;
+  color: #000;
 }
 
 .container {
   width: 100%;
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+  height: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-}
-
-.card {
-  background: #ffffff;
-  padding: 30px;
-  margin: 20px 0;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 650px;
+  text-align: center;
+  flex-direction: column;
 }
 
 .screen {
   display: none;
+  width: 90%;
+  max-width: 700px;
 }
 
 .screen.active {
@@ -45,19 +33,16 @@ html, body {
 }
 
 h1, h2 {
-  margin-bottom: 12px;
-  color: #333;
-  font-weight: 700;
+  margin: 0.5em 0;
+  color: var(--accent);
 }
 
 p, li {
   font-size: 1rem;
-  line-height: 1.5;
-  color: #222;
 }
 
 ul {
-  text-align: left;
+  padding-left: 20px;
 }
 
 .muted {
@@ -65,64 +50,35 @@ ul {
   font-size: 0.9rem;
 }
 
-.small {
-  font-size: 0.8rem;
-}
-
 .img-stage {
   width: 100%;
-  min-height: 260px;
-  background: #fafafa;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  min-height: 280px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  overflow: hidden;
+  align-items: center;
+  background-color: #fff;
+  object-fit: contain;
 }
 
 .choice, .rating-option {
-  padding: 12px 18px;
-  border-radius: 8px;
-  background: #e8e8e8;
+  display: inline-block;
+  padding: 10px 15px;
+  margin: 5px;
   font-weight: bold;
-  user-select: none;
+  background: none;
+  border: none;
 }
 
 .choice:hover, .rating-option:hover {
-  background: #dcdcdc;
-}
-
-.rating-scale {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-top: 10px;
+  background: none;
 }
 
 .rating-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-button {
-  padding: 12px 24px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 20px;
-}
-
-button:hover {
-  background: #333;
+  margin-top: 8px;
 }
 
 .toolbar {
-  display: none;
+  display: none; 
 }

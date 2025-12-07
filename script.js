@@ -1,3 +1,8 @@
+// -------------------------
+// script.js — fixed & robust
+// -------------------------
+
+// ----- Image lists (unchanged) -----
 const oldImages = [
   { src: "oldpics/aardvark.jpg", isOld: true },
   { src: "oldpics/anteater.jpg", isOld: true },
@@ -100,12 +105,10 @@ const newImages = [
   { src: "newpic/zebra.jpg", isOld: false },
 ];
 
-//shuffle
+// ----- Build trials and shuffle -----
 const allImages = [...oldImages, ...newImages];
 shuffle(allImages);
-
-//set all 96 images as trial
-const trials = allImages;
+const trials = allImages.slice(); // array of trial objects (src + isOld)
 
 function shuffle(a){
   for(let i = a.length - 1; i > 0; i--){
@@ -114,12 +117,12 @@ function shuffle(a){
   }
 }
 
-//1-1.5 iti
+// ----- ITI function (1.0 - 1.5 s) -----
 function randomITI(){
   return 1000 + Math.random() * 500;
 }
 
-
+// ----- DOM references -----
 const screens = {
   id: document.getElementById('idScreen'),
   instructions: document.getElementById('instructionsScreen'),
@@ -140,10 +143,11 @@ const screens = {
 const subidInput = document.getElementById('subid');
 const progressIndicator = document.getElementById('progressIndicator');
 const imgStage = document.getElementById('imgStage');
-const debugLog = document.getElementById('debugLog');
+const debugLog = document.getElementById('debugLog') || null;
+const startTypicalityBtn = document.getElementById('startTypicalityBtn');
 
-//for csv
-let state = {
+// ----- State -----
+const state = {
   subj: null,
   q1_anticipation: null,
   q2_thinking: null,
@@ -151,71 +155,31 @@ let state = {
   results: [],
   typicalityIndex: 0,
   typicalityResults: [],
-  experimentStartTime: null
+  experimentStartTime: null,
+  oldImagesShuffled: []
 };
 
-let instructionsKeyHandler = null;
-
+// ----- helper: safe show screen and update progress -----
 function showScreen(name){
-  for(const k in screens) screens[k].classList.remove('active');
-  screens[name].classList.add('active');
+  Object.values(screens).forEach(s => s && s.classList.remove('active'));
+  const screenEl = screens[name];
+  if(screenEl) screenEl.classList.add('active');
 
-  if(instructionsKeyHandler){
-    window.removeEventListener('keydown', instructionsKeyHandler);
-    instructionsKeyHandler = null;
-  }
-
-  if(name === 'instructions'){
-    setTimeout(() => {
-      instructionsKeyHandler = (e) => {
-        if(e.key === 'Enter'){
-          window.removeEventListener('keydown', instructionsKeyHandler);
-          instructionsKeyHandler = null;
-          showScreen('memoryInstructions');
-        }
-      };
-      window.addEventListener('keydown', instructionsKeyHandler);
-    }, 100);
-  }
-
-  if(name === 'memoryInstructions'){
-    setTimeout(() => {
-      instructionsKeyHandler = (e) => {
-        if(e.key === 'Enter'){
-          window.removeEventListener('keydown', instructionsKeyHandler);
-          instructionsKeyHandler = null;
-          goToQuestion1();
-        }
-      };
-      window.addEventListener('keydown', instructionsKeyHandler);
-    }, 100);
-  }
-
-  if(name === 'ready'){
-    setTimeout(() => {
-      instructionsKeyHandler = (e) => {
-        if(e.key === 'Enter'){
-          window.removeEventListener('keydown', instructionsKeyHandler);
-          instructionsKeyHandler = null;
-          startMemoryTest();
-        }
-      };
-      window.addEventListener('keydown', instructionsKeyHandler);
-    }, 100);
-  }
-
-  if(name === 'rest'){
-    progressIndicator.textContent = `Rest Break`;
-  } else if(name === 'typicalityInstructions' || name === 'typicality') {
-    progressIndicator.textContent = `Phase 2: Typicality Rating`;
-  } else if(name === 'end') {
-    progressIndicator.textContent = "Completed";
+  // update progress indicator
+  if(name === 'image' || name === 'choice' || name === 'confidence' || name === 'feedback'){
+    progressIndicator.textContent = `Trial ${Math.min(state.trialIndex + 1, trials.length)} / ${trials.length}`;
+  } else if(name === 'rest'){
+    progressIndicator.textContent = 'Rest Break';
+  } else if(name === 'typicality' || name === 'typicalityInstructions'){
+    progressIndicator.textContent = 'Phase 2: Typicality Rating';
+  } else if(name === 'end'){
+    progressIndicator.textContent = 'Completed';
   } else {
-    progressIndicator.textContent = "";
+    progressIndicator.textContent = '';
   }
 }
 
-
+// ----- ID input Enter handler -----
 subidInput.addEventListener('keydown', (e) => {
   if(e.key === 'Enter'){
     const id = subidInput.value.trim();
@@ -228,356 +192,247 @@ subidInput.addEventListener('keydown', (e) => {
   }
 });
 
-//instruction
-function goToQuestion1(){
-  handleQuestion1();
-}
-
-//pre-test question1
-const q1Scale = document.getElementById('q1Scale');
-
+// ----- Pre-test Q1 handler -----
 function handleQuestion1(){
   showScreen('question1');
-  
-  function handleKeyQ1(e){
+
+  function onKey(e){
     if(['1','2','3','4','5'].includes(e.key)){
-      q1Scale.querySelectorAll('.rating-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
-      const selected = q1Scale.querySelector(`[data-value="${e.key}"]`);
-      if(selected) selected.classList.add('selected');
-      
       state.q1_anticipation = e.key;
-      
-      window.removeEventListener('keydown', handleKeyQ1);
-      setTimeout(() => {
-        handleQuestion2();
-      }, 300);
+      document.querySelectorAll('#q1Scale .rating-option').forEach(o => o.classList.remove('selected'));
+      const sel = document.querySelector(`#q1Scale .rating-option[data-value="${e.key}"]`);
+      if(sel) sel.classList.add('selected');
+      window.removeEventListener('keydown', onKey);
+      setTimeout(handleQuestion2, 300);
     }
   }
-  
-  window.addEventListener('keydown', handleKeyQ1);
+  window.addEventListener('keydown', onKey);
 }
 
-//pre-test question2
-const q2Scale = document.getElementById('q2Scale');
-
+// ----- Pre-test Q2 handler -----
 function handleQuestion2(){
   showScreen('question2');
-  
-  function handleKeyQ2(e){
+
+  function onKey(e){
     if(['1','2','3','4','5'].includes(e.key)){
-      q2Scale.querySelectorAll('.rating-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
-      const selected = q2Scale.querySelector(`[data-value="${e.key}"]`);
-      if(selected) selected.classList.add('selected');
-      
       state.q2_thinking = e.key;
-      
-      window.removeEventListener('keydown', handleKeyQ2);
-      setTimeout(() => {
-        showScreen('ready');
-      }, 300);
+      document.querySelectorAll('#q2Scale .rating-option').forEach(o => o.classList.remove('selected'));
+      const sel = document.querySelector(`#q2Scale .rating-option[data-value="${e.key}"]`);
+      if(sel) sel.classList.add('selected');
+      window.removeEventListener('keydown', onKey);
+      setTimeout(() => showScreen('ready'), 300);
     }
   }
-  
-  window.addEventListener('keydown', handleKeyQ2);
+  window.addEventListener('keydown', onKey);
 }
 
-/***********************
- * Ready Screen
- ***********************/
+// ----- Keyboard-driven navigation for instructions & ready -----
+(function setupInstructionNavigation(){
+  function onKey(e){
+    // when on instructions screen, Enter -> memoryInstructions
+    if(screens.instructions.classList.contains('active') && e.key === 'Enter'){
+      window.removeEventListener('keydown', onKey);
+      showScreen('memoryInstructions');
+      // attach new listener for memoryInstructions -> question1
+      function onKey2(ev){
+        if(ev.key === 'Enter'){
+          window.removeEventListener('keydown', onKey2);
+          handleQuestion1();
+        }
+      }
+      window.addEventListener('keydown', onKey2);
+    }
+  }
+  window.addEventListener('keydown', onKey);
+})();
+
+// ----- Start memory test (preloads images) -----
 async function startMemoryTest(){
-  await preloadAll(trials.map(t => t.src));
+  // preload all trial images
+  try {
+    await preloadAll(trials.map(t => t.src));
+  } catch(e){
+    console.warn("Preload error:", e);
+  }
+
   state.trialIndex = 0;
   state.results = [];
   state.experimentStartTime = Date.now();
   showTrial();
 }
 
-/***********************
- * Preload images
- ***********************/
+// ----- Preload helper -----
 function preloadAll(urls){
-  return Promise.all(
-    urls.map(u => new Promise(res => {
+  return Promise.all(urls.map(url => {
+    return new Promise(res => {
       const img = new Image();
-      img.onload = res;
+      img.onload = () => res(true);
       img.onerror = () => {
-        console.warn(`Failed to load: ${u}`);
-        res();
+        console.warn("Image failed to load:", url);
+        res(false);
       };
-      img.src = u;
-    }))
-  );
+      img.src = url;
+    });
+  }));
 }
 
-/***********************
- * Trial flow
- ***********************/
+// ----- Trial flow ----- 
 async function showTrial(){
-  console.log("showTrial called, trialIndex:", state.trialIndex); // DEBUG
-  
+  // finished?
   if(state.trialIndex >= trials.length){
-    console.log("All trials complete"); // DEBUG
+    // proceed to typicality
     showTypicalityInstructions();
     return;
   }
 
+  // rest break every 48 trials (after 48th, 96th etc.)
   if(state.trialIndex > 0 && state.trialIndex % 48 === 0){
-    console.log("Rest break"); // DEBUG
     await showRestBreak();
   }
 
   const t = trials[state.trialIndex];
-  const trialStartTime = Date.now();
 
-  console.log("Showing image"); // DEBUG
+  // display image (with ITI before)
+  const itiBefore = randomITI();
+  // show blank fixation
+  imgStage.innerHTML = "<div class='muted' style='font-size: 2rem;'>+</div>";
   showScreen('image');
+  await wait(itiBefore);
+
+  // show image for 2000 ms
   await displayImage(t.src, 2000);
 
-  console.log("Getting choice"); // DEBUG
+  // get choice (F/J)
   const choice = await getChoiceResponse();
 
-  console.log("Getting confidence"); // DEBUG
+  // get confidence (1-5)
   const conf = await getConfidenceResponse();
 
+  // determine correctness
   const isCorrect = (t.isOld && choice.resp === 'old') || (!t.isOld && choice.resp === 'new');
 
-  console.log("Showing feedback"); // DEBUG
+  // show feedback (1.5 s)
   await showFeedback(isCorrect);
 
-  console.log("Calculating ITI"); // DEBUG
-  const iti = randomITI();
-  console.log("ITI value:", iti); // DEBUG
+  // compute ITI after trial (1.0 - 1.5 s)
+  const itiAfter = randomITI();
 
-  console.log("Recording data"); // DEBUG
+  // record data
   state.results.push({
     subj: state.subj,
     q1_anticipated_test: state.q1_anticipation,
     q2_thinking_about_images: state.q2_thinking,
     trial: state.trialIndex + 1,
-    image: t.src.split('/').pop(), //csv
-    imageType: t.isOld ? 'old' : 'new', // also csv
+    image: t.src.split('/').pop(),
+    imageType: t.isOld ? 'old' : 'new',
     response: choice.resp,
     responseRT: Math.round(choice.rt),
     confidence: conf.rating,
     confidenceRT: Math.round(conf.rt),
     correct: isCorrect,
-    ITI: Math.round(iti),
+    ITI_before_ms: Math.round(itiBefore),
+    ITI_after_ms: Math.round(itiAfter),
     timestamp: new Date().toISOString()
   });
 
-
-  if(debugLog) {
-    debugLog.textContent = JSON.stringify(state.results.slice(-5), null, 2);
-  }
+  if(debugLog) debugLog.textContent = JSON.stringify(state.results.slice(-5), null, 2);
 
   state.trialIndex++;
-  console.log("Trial index incremented to:", state.trialIndex); // DEBUG
-
-  console.log("Waiting for ITI:", iti); // DEBUG
-  // Show blank screen during ITI
+  // blank screen for ITI after
   imgStage.innerHTML = "";
   showScreen('image');
-  await wait(iti);
+  await wait(itiAfter);
 
-  console.log("Calling next trial"); // DEBUG
+  // next trial
   showTrial();
 }
 
 function displayImage(src, ms){
   return new Promise(resolve => {
     imgStage.innerHTML = "";
-    const img = document.createElement("img");
+    const img = document.createElement('img');
     img.src = src;
+    img.style.maxWidth = "100%";
+    img.style.maxHeight = "100%";
     imgStage.appendChild(img);
-    
     setTimeout(() => {
+      // remove image visually
       imgStage.innerHTML = "<div class='muted'>[Image removed]</div>";
       resolve();
     }, ms);
   });
 }
 
+// ----- collect choice (F/J) -----
 function getChoiceResponse(){
   return new Promise(resolve => {
     showScreen('choice');
     const start = performance.now();
 
-    function handleKey(e){
+    function onKey(e){
       const k = e.key.toLowerCase();
-      if(k === 'f') done('new', 'f');
-      if(k === 'j') done('old', 'j');
+      if(k === 'f' || k === 'j'){
+        window.removeEventListener('keydown', onKey);
+        const resp = (k === 'f') ? 'new' : 'old';
+        resolve({ resp, key: k, rt: performance.now() - start });
+      }
     }
 
-    function done(resp, key){
-      window.removeEventListener('keydown', handleKey);
-      resolve({ resp, key, rt: performance.now() - start });
-    }
-
-    window.addEventListener('keydown', handleKey);
+    // ensure no other handlers interfere
+    window.addEventListener('keydown', onKey);
   });
 }
 
+// ----- collect confidence (1-5) -----
 function getConfidenceResponse(){
   return new Promise(resolve => {
     showScreen('confidence');
     const start = performance.now();
 
-    function handleKey(e){
+    function onKey(e){
       if(['1','2','3','4','5'].includes(e.key)){
-        done(e.key, e.key);
+        window.removeEventListener('keydown', onKey);
+        resolve({ rating: e.key, key: e.key, rt: performance.now() - start });
       }
     }
 
-    function done(rating, key){
-      window.removeEventListener('keydown', handleKey);
-      resolve({ rating, key, rt: performance.now() - start });
-    }
-
-    window.addEventListener('keydown', handleKey);
+    window.addEventListener('keydown', onKey);
   });
 }
 
+// ----- feedback ----- 
 function showFeedback(isCorrect){
   return new Promise(resolve => {
     showScreen('feedback');
     const feedbackText = document.getElementById('feedbackText');
-    
+    if(!feedbackText) return setTimeout(resolve, 1500);
+
     if(isCorrect){
       feedbackText.textContent = "Correct!";
-      feedbackText.style.color = "#10b981";
+      feedbackText.style.color = "#10b981"; // green
     } else {
       feedbackText.textContent = "Incorrect!";
-      feedbackText.style.color = "#ef4444";
+      feedbackText.style.color = "#ef4444"; // red
     }
-    
-    setTimeout(() => {
-      resolve();
-    }, 1500);
+
+    setTimeout(() => resolve(), 1500);
   });
 }
 
-/***********************
- * Typicality Phase
- ***********************/
-function showTypicalityInstructions(){
-  showScreen('typicalityInstructions');
-}
-
-document.getElementById('startTypicalityBtn').onclick = async () => {
-  const shuffledOldImages = [...oldImages];
-  shuffle(shuffledOldImages);
-  state.oldImagesShuffled = shuffledOldImages;
-  state.typicalityIndex = 0;
-  state.typicalityResults = [];
-  
-  showTypicalityTrial();
-};
-
-async function showTypicalityTrial(){
-  if(state.typicalityIndex >= state.oldImagesShuffled.length){
-    autoDownloadResults();
-    showScreen('end');
-    return;
-  }
-
-  const img = state.oldImagesShuffled[state.typicalityIndex];
-  const trialStartTime = Date.now();
-  
-  showScreen('typicality');
-  const typImg = document.getElementById('typicalityImage');
-  typImg.src = img.src;
-  typImg.style.display = 'block';
-  
-  document.getElementById('typicalityScale').style.display = 'none';
-  document.getElementById('typicalityQuestion').style.display = 'none';
-  document.getElementById('typicalityLabels').style.display = 'none';
-  
-  await wait(2000);
-  
-  typImg.style.display = 'none';
-  document.getElementById('typicalityScale').style.display = 'flex';
-  document.getElementById('typicalityQuestion').style.display = 'block';
-  document.getElementById('typicalityLabels').style.display = 'flex';
-  
-  const rating = await getTypicalityRating();
-  
-  //empty screen
-  document.getElementById('typicalityScale').style.display = 'none';
-  document.getElementById('typicalityQuestion').style.display = 'none';
-  document.getElementById('typicalityLabels').style.display = 'none';
-  
-  //iti
-  const iti = randomITI();
-  
-  state.typicalityResults.push({
-    subj: state.subj,
-    trial: state.typicalityIndex + 1,
-    image: img.src.split('/').pop(), //csv
-    typicalityRating: rating.rating,
-    typicalityRT: Math.round(rating.rt),
-    ITI: Math.round(iti),
-    timestamp: new Date().toISOString()
-  });
-  
-  state.typicalityIndex++;
-  
-  await wait(iti);
-  
-  showTypicalityTrial();
-}
-
-function getTypicalityRating(){
-  return new Promise(resolve => {
-    const start = performance.now();
-    const scale = document.getElementById('typicalityScale');
-    
-    scale.querySelectorAll('.rating-option').forEach(opt => {
-      opt.classList.remove('selected');
-    });
-    
-    function handleKey(e){
-      if(['1','2','3','4','5','6','7'].includes(e.key)){
-        done(e.key, e.key);
-      }
-    }
-    
-    function done(rating, key){
-      scale.querySelectorAll('.rating-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
-      const selectedOpt = scale.querySelector(`[data-value="${rating}"]`);
-      if(selectedOpt) selectedOpt.classList.add('selected');
-      
-      setTimeout(() => {
-        window.removeEventListener('keydown', handleKey);
-        resolve({ rating, key, rt: performance.now() - start });
-      }, 200);
-    }
-    
-    window.addEventListener('keydown', handleKey);
-  });
-}
-
+// ----- Rest break ----- 
 function showRestBreak(){
   return new Promise(resolve => {
     showScreen('rest');
-    const restDuration = 20;
+    const restDuration = 20; // seconds
     let remaining = restDuration;
-    
     const restText = document.getElementById('restText');
     const restTimer = document.getElementById('restTimer');
-    
-    restText.textContent = 'Take a break!';
-    restTimer.textContent = `Time remaining: ${remaining} seconds`;
-    
+    if(restText) restText.textContent = 'Take a break!';
+    if(restTimer) restTimer.textContent = `Time remaining: ${remaining} seconds`;
+
     const interval = setInterval(() => {
       remaining--;
-      restTimer.textContent = `Time remaining: ${remaining} seconds`;
-      
+      if(restTimer) restTimer.textContent = `Time remaining: ${remaining} seconds`;
       if(remaining <= 0){
         clearInterval(interval);
         resolve();
@@ -586,47 +441,141 @@ function showRestBreak(){
   });
 }
 
-function wait(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
+// ----- Typicality phase ----- 
+function showTypicalityInstructions(){
+  showScreen('typicalityInstructions');
 }
 
-//download csv
+// start typicality when button pressed (button present in HTML)
+if(startTypicalityBtn){
+  startTypicalityBtn.addEventListener('click', async () => {
+    // shuffle old images for typicality
+    state.oldImagesShuffled = [...oldImages];
+    shuffle(state.oldImagesShuffled);
+    state.typicalityIndex = 0;
+    state.typicalityResults = [];
+    await showTypicalityTrial();
+  });
+}
+
+// typicality trial loop
+async function showTypicalityTrial(){
+  if(state.typicalityIndex >= state.oldImagesShuffled.length){
+    autoDownloadResults();
+    showScreen('end');
+    return;
+  }
+
+  const img = state.oldImagesShuffled[state.typicalityIndex];
+  showScreen('typicality');
+
+  const typImg = document.getElementById('typicalityImage');
+  const typQuestion = document.getElementById('typicalityQuestion');
+  const typScale = document.getElementById('typicalityScale');
+  const typLabels = document.getElementById('typicalityLabels');
+
+  if(typImg){
+    typImg.src = img.src;
+    typImg.style.display = 'block';
+  }
+  if(typScale) typScale.style.display = 'none';
+  if(typQuestion) typQuestion.style.display = 'none';
+  if(typLabels) typLabels.style.display = 'none';
+
+  await wait(2000);
+
+  if(typImg) typImg.style.display = 'none';
+  if(typScale) typScale.style.display = 'flex';
+  if(typQuestion) typQuestion.style.display = 'block';
+  if(typLabels) typLabels.style.display = 'flex';
+
+  const rating = await getTypicalityRating();
+
+  // record
+  const iti = randomITI();
+  state.typicalityResults.push({
+    subj: state.subj,
+    trial: state.typicalityIndex + 1,
+    image: img.src.split('/').pop(),
+    typicalityRating: rating.rating,
+    typicalityRT: Math.round(rating.rt),
+    ITI: Math.round(iti),
+    timestamp: new Date().toISOString()
+  });
+
+  state.typicalityIndex++;
+  await wait(iti);
+  showTypicalityTrial();
+}
+
+function getTypicalityRating(){
+  return new Promise(resolve => {
+    const start = performance.now();
+    function onKey(e){
+      if(['1','2','3','4','5','6','7'].includes(e.key)){
+        window.removeEventListener('keydown', onKey);
+        resolve({ rating: e.key, key: e.key, rt: performance.now() - start });
+      }
+    }
+    window.addEventListener('keydown', onKey);
+  });
+}
+
+// ----- utilities ----- 
+function wait(ms){
+  return new Promise(res => setTimeout(res, ms));
+}
+
+// ----- CSV export helpers ----- 
 function toCSV(arr){
-  if(arr.length === 0) return "";
+  if(!arr || arr.length === 0) return "";
   const keys = Object.keys(arr[0]);
   const header = keys.join(",");
   const rows = arr.map(obj => keys.map(k => {
     const val = obj[k];
     if(val === null || val === undefined) return "";
-    return JSON.stringify(String(val));
+    // escape quotes and commas by wrapping in quotes and escaping existing quotes
+    const s = String(val).replace(/"/g, '""');
+    return `"${s}"`;
   }).join(","));
   return [header, ...rows].join("\n");
 }
 
 function autoDownloadResults(){
-  const createdAt = new Date().toLocaleString("en-US", {
-    timeZone: "America/New_York"
-  });
-  
-  //mem test csv
+  const createdAt = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+
+  // memory test CSV
   let csv1 = `created_at,${createdAt}\n\n`;
   csv1 += toCSV(state.results);
-  
-  const blob1 = new Blob([csv1], {type:'text/csv'});
+  const blob1 = new Blob([csv1], { type:'text/csv' });
   const link1 = document.createElement('a');
   link1.href = URL.createObjectURL(blob1);
   link1.download = `${state.subj}_memory_test.csv`;
   link1.click();
-  
-  //pause before downloading typicality csv
+
+  // typicality CSV (small pause so browser doesn't block)
   setTimeout(() => {
     let csv2 = `created_at,${createdAt}\n\n`;
     csv2 += toCSV(state.typicalityResults);
-    
-    const blob2 = new Blob([csv2], {type:'text/csv'});
+    const blob2 = new Blob([csv2], { type:'text/csv' });
     const link2 = document.createElement('a');
     link2.href = URL.createObjectURL(blob2);
     link2.download = `${state.subj}_typicality_rating.csv`;
     link2.click();
   }, 500);
 }
+
+// ----- startMemoryTest hook (Enter on ready screen) -----
+// There is earlier navigation for instructions; we also handle Enter on ready screen:
+window.addEventListener('keydown', (e) => {
+  if(screens.ready && screens.ready.classList.contains('active') && e.key === 'Enter'){
+    startMemoryTest();
+  }
+});
+
+// Expose startMemoryTest so you can also call it from console if needed
+window.startMemoryTest = startMemoryTest;
+
+// -------------------------
+// End of script.js
+// -------------------------

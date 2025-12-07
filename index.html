@@ -3,191 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>nmph_mtest_TI — Surprise Memory Test</title>
+  <title>nmph_mtest</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="container">
-    <div class="toolbar">
-      <div>
-        <h1>Surprise Memory Test</h1>
-      </div>
-      <div class="status" id="progressIndicator">Ready</div>
-    </div>
 
     <!-- ID Screen -->
-    <section id="idScreen" class="screen active card">
+    <section id="idScreen" class="screen active">
       <h2>Welcome</h2>
       <label for="subid">Participant ID</label>
-      <input id="subid" type="text" placeholder="e.g., p101" />
+      <input id="subid" type="text" placeholder="e.g., 101" />
       <p class="muted small">Press <strong>Enter</strong> to continue</p>
     </section>
 
     <!-- Instructions Screen -->
-    <section id="instructionsScreen" class="screen card">
+    <section id="instructionsScreen" class="screen">
       <h2>Important Instructions</h2>
-      <div class="instructions">
-        <p><strong>Please read carefully:</strong></p>
-        <ul style="text-align: left; margin-left: 20px; margin-top: 12px;">
-          <li><strong>Full engagement required:</strong> Please stay fully engaged and respond as accurately and quickly as possible.</li>
-          <li><strong>Do not leave:</strong> This task will take approximately 30–40 minutes. Please ensure you can complete it in one sitting. Do not leave or pause during the experiment. Otherwise, responses may not be recorded properly.</li>
-          <li><strong>Monitored behavior:</strong> Please note that your responses will be monitored throughout the test. Any irregular or abnormal behavior may affect your credit.</li>
-          <li><strong>Credit affected:</strong> Any abnormal behavior will affect your credit.</li>
-        </ul>
-        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the task instructions.</p>
-      </div>
+      <p>Read carefully and stay fully engaged. Press <strong>Enter</strong> to continue.</p>
     </section>
 
-    <!-- Memory Test Instructions Screen (NEW) -->
-    <section id="memoryInstructionsScreen" class="screen card">
+    <!-- Memory Test Instructions Screen -->
+    <section id="memoryInstructionsScreen" class="screen">
       <h2>Memory Test Instructions</h2>
-      <div class="instructions">
-        <p>In this task, you will be presented with some images you have seen previously in your arrangement tasks and some new images you have never seen before.</p>
-        <p style="margin-top: 16px;">Each image will be shown for <strong>2 seconds only</strong>.</p>
-        <p style="margin-top: 16px;">If you think you have seen the image before, select <strong>"old"</strong>. If you have not seen it before, select <strong>"new"</strong>.</p>        
-        <p style="margin-top: 16px;">Then, report your confidence in that choice on a scale from <strong>1 to 5</strong>, where:</p>
-        <ul style="text-align: left; margin: 12px 0 12px 40px; line-height: 1.8;">
-          <li><strong>1</strong> = Not confident at all</li>
-          <li><strong>5</strong> = Very confident</li>
-        </ul>
-        <p style="margin-top: 16px;">You will receive feedback after each trial. This feedback is based <strong>only on your new/old choice</strong>, not on your confidence level.</p>
-        <p style="margin-top: 16px;">Press <strong>Enter</strong> to continue to the questions.</p>
-      </div>
+      <p>You will see old and new images for 2 seconds each. Press <strong>F</strong> if NEW, <strong>J</strong> if OLD, then rate your confidence (1-5). Press <strong>Enter</strong> to continue.</p>
     </section>
 
-    <!-- Questions Screen - Question 1 -->
-    <section id="question1Screen" class="screen card">
-      <h2>Pre-Test Question 1 of 2</h2>
-      
-      <div class="question-block">
-        <div class="question-text">Have you anticipated that you will be having a memory test today?</div>
-        <div class="rating-scale" id="q1Scale">
-          <div class="rating-option" data-value="1">1</div>
-          <div class="rating-option" data-value="2">2</div>
-          <div class="rating-option" data-value="3">3</div>
-          <div class="rating-option" data-value="4">4</div>
-          <div class="rating-option" data-value="5">5</div>
-        </div>
-        <div class="rating-labels">
-          <span>Not at all</span>
-          <span>Very much</span>
-        </div>
-      </div>
-      <p class="muted small">Press 1-5 on your keyboard to answer</p>
-    </section>
-
-    <!-- Questions Screen - Question 2 -->
-    <section id="question2Screen" class="screen card">
-      <h2>Pre-Test Question 2 of 2</h2>
-      
-      <div class="question-block">
-        <div class="question-text">Have you been thinking about the images that you previously arranged since the LAST time you arranged them?</div>
-        <div class="rating-scale" id="q2Scale">
-          <div class="rating-option" data-value="1">1</div>
-          <div class="rating-option" data-value="2">2</div>
-          <div class="rating-option" data-value="3">3</div>
-          <div class="rating-option" data-value="4">4</div>
-          <div class="rating-option" data-value="5">5</div>
-        </div>
-        <div class="rating-labels">
-          <span>Not at all</span>
-          <span>Very much</span>
-        </div>
-      </div>
-      <p class="muted small">Press 1-5 on your keyboard to answer</p>
-    </section>
-
-    <!-- Ready to Start Screen -->
-    <section id="readyScreen" class="screen card">
-      <h2>Ready to Begin</h2>
-      <p style="font-size: 1.3rem; font-weight: 600; color: var(--accent);">Press <strong>Enter</strong> to start the memory test</p>
-    </section>
-
-    <!-- Image display -->
-    <section id="imageScreen" class="screen card">
-      <div class="img-stage" id="imgStage"><div class="muted">Image will appear</div></div>
-    </section>
-
-    <!-- Choice screen -->
-    <section id="choiceScreen" class="screen card">
-      <div class="muted" style="margin-bottom: 24px;">Was the image NEW or OLD?</div>
-      <div style="display: flex; justify-content: center; gap: 40px; align-items: center;">
-        <div class="choice" style="min-width: 200px;"><strong>F</strong> — NEW</div>
-        <div class="choice" style="min-width: 200px;"><strong>J</strong> — OLD</div>
-      </div>
-    </section>
-
-    <!-- Confidence -->
-    <section id="confidenceScreen" class="screen card">
-      <div class="muted" style="margin-bottom: 24px;">How confident are you? （1 = not confident at all, 5 = very confident)</div>
-      <div style="display: flex; justify-content: center; gap: 16px; align-items: center; flex-wrap: wrap;">
-        <div class="choice" style="min-width: 100px;"> <strong>1</strong></div>
-        <div class="choice" style="min-width: 100px;"> <strong>2</strong></div>
-        <div class="choice" style="min-width: 100px;"> <strong>3</strong></div>
-        <div class="choice" style="min-width: 100px;"> <strong>4</strong></div>
-        <div class="choice" style="min-width: 100px;"> <strong>5</strong></div>
-      </div>
-      <div class="rating-labels" style="margin-top: 16px;">
-        <span>Press 1-5 on your keyboard to answer</span>
-      </div>
-    </section>
-
-    <!-- Feedback Screen -->
-    <section id="feedbackScreen" class="screen card">
-      <h1 id="feedbackText" style="font-size: 3rem; font-weight: bold; margin: 40px 0;">Correct!</h1>
-    </section>
-
-    <!-- Rest Break Screen -->
-    <section id="restScreen" class="screen card">
-      <h2>Rest Break</h2>
-      <p class="muted" id="restText">Take a break!</p>
-      <p class="muted" style="margin-top: 8px;">Please do not leave. The task will begin automatically after the countdown.</p>
-      <h3 id="restTimer" style="color: #7dd3fc; margin: 20px 0;">Time remaining: 20 seconds</h3>
-    </section>
-
-    <!-- Typicality Instructions Screen -->
-    <section id="typicalityInstructionsScreen" class="screen card">
-      <h2>Part 2: Typicality Rating</h2>
-      <div class="instructions">
-        <p>Great job completing the memory test! Now we have one more task for you.</p>
-        <p style="margin-top: 16px;">You will see a series of image again. For each image, please rate <strong>how typical</strong> it is as an example of an animal on a seven-point scale:</p>
-        <ul style="text-align: left; margin: 16px 0 16px 40px; line-height: 1.8;">
-          <li><strong>1 = Not at all typical</strong></li>
-          <li><strong>7 = Very typical</strong></li>
-        </ul>
-        <p style="margin-top: 16px;"><strong>Example:</strong> An apple is a typical fruit; it is representative of the entire fruit category. On the other hand, a dragonfruit is not a typical fruit, at least in American grocery stores.</p>
-        <p style="margin-top: 16px;">Think about how representative each animal is of the entire animal category. Press the number key (1-7) that matches your rating.</p>
-      </div>
-      <button id="startTypicalityBtn">Start Typicality Rating</button>
-    </section>
-
-    <!-- Typicality Rating Screen -->
-    <section id="typicalityScreen" class="screen card">
-      <div class="img-stage" style="min-height: 300px; margin: 10px 0;">
-        <img id="typicalityImage" src="" alt="Animal" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;" />
-      </div>
-      <div id="typicalityQuestion" class="muted" style="margin: 16px 0; display: none;">How typical is this animal?</div>
-      <div class="rating-scale" id="typicalityScale" style="max-width: 600px; margin: 0 auto; display: none;">
+    <!-- Pre-test Question 1 -->
+    <section id="question1Screen" class="screen">
+      <h2>Pre-Test Question 1</h2>
+      <p>Have you anticipated that you will be having a memory test today?</p>
+      <div id="q1Scale" class="rating-scale">
         <div class="rating-option" data-value="1">1</div>
         <div class="rating-option" data-value="2">2</div>
         <div class="rating-option" data-value="3">3</div>
         <div class="rating-option" data-value="4">4</div>
         <div class="rating-option" data-value="5">5</div>
-        <div class="rating-option" data-value="6">6</div>
-        <div class="rating-option" data-value="7">7</div>
       </div>
-      <div class="rating-labels" id="typicalityLabels" style="max-width: 600px; display: none;">
-        <span>Not typical</span>
-        <span>Very typical</span>
+      <div class="rating-labels">
+        <span>Not at all</span>
+        <span>Very much</span>
       </div>
     </section>
 
-    <!-- End screen -->
-    <section id="endScreen" class="screen card">
-      <h2>Experiment Complete!</h2>
-      <p class="muted">Thank you for your participation!</p>
-      <p class="muted">Your data has been automatically downloaded.</p>
+    <!-- Pre-test Question 2 -->
+    <section id="question2Screen" class="screen">
+      <h2>Pre-Test Question 2</h2>
+      <p>Have you been thinking about the images you previously arranged?</p>
+      <div id="q2Scale" class="rating-scale">
+        <div class="rating-option" data-value="1">1</div>
+        <div class="rating-option" data-value="2">2</div>
+        <div class="rating-option" data-value="3">3</div>
+        <div class="rating-option" data-value="4">4</div>
+        <div class="rating-option" data-value="5">5</div>
+      </div>
+      <div class="rating-labels">
+        <span>Not at all</span>
+        <span>Very much</span>
+      </div>
     </section>
+
+    <!-- Ready Screen -->
+    <section id="readyScreen" class="screen">
+      <h2>Ready to Begin</h2>
+      <p>Press <strong>Enter</strong> to start the memory test</p>
+    </section>
+
+    <!-- Image Screen -->
+    <section id="imageScreen" class="screen">
+      <div class="img-stage" id="imgStage">+</div>
+    </section>
+
+    <!-- Choice Screen -->
+    <section id="choiceScreen" class="screen">
+      <p>Was the image NEW or OLD?</p>
+      <div class="choice"><strong>F</strong> — NEW</div>
+      <div class="choice"><strong>J</strong> — OLD</div>
+    </section>
+
+    <!-- Confidence Screen -->
+    <section id="confidenceScreen" class="screen">
+      <p>How confident are you? (1 = not confident, 5 = very confident)</p>
+      <div class="rating-scale">
+        <div class="rating-option" data-value="1">1</div>
+        <div class="rating-option" data-value="2">2</div>
+        <div class="rating-option" data-value="3">3</div>
+        <div class="rating-option" data-value="4">4</div>
+        <div class="rating-option" data-value="5">5</div>
+      </div>
+    </section>
+
+    <!-- Feedback Screen -->
+    <section id="feedbackScreen" class="screen">
+      <h1 id="feedbackText">Correct!</h1>
+    </section>
+
+    <!-- End Screen -->
+    <section id="endScreen" class="screen">
+      <h2>Experiment Complete!</h2>
+      <p>Thank you for your participation!</p>
+      <p>Your data has been automatically downloaded.</p>
+    </section>
+
   </main>
   <script src="script.js"></script>
 </body>
